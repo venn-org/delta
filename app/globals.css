@@ -1,0 +1,238 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Design tokens — docs/HANDOFF.md
+   Tailwind v4 is CSS-first: these replace `tailwind.config.theme.extend`.
+   Each `--color-*` entry generates bg-/text-/border- utilities automatically.
+--------------------------------------------------------------------------- */
+@theme {
+  --color-blue: #335cff;
+  --color-violet: #8a5bff;
+  --color-indigo: #3a2fd6;
+  --color-ink: #14161b;
+  --color-slate: #5a6072;
+  --color-mist: #e6e8ee;
+  --color-canvas: #f2f3f7;
+  --color-paper: #fcfcfd;
+  --color-match: #15803d;
+  --color-match-bg: #eaf8ef;
+  --color-friction: #9a4a00;
+  --color-friction-bg: #fff3e6;
+  --color-danger: #e5304f;
+
+  --radius-pill: 50px;
+  --radius-card: 20px;
+  --radius-row: 16px;
+  --radius-field: 14px;
+  --radius-sheet: 24px;
+
+  --shadow-card: 0 2px 10px rgb(0 0 0 / 0.06);
+  --shadow-bubble: 0 1px 3px rgb(0 0 0 / 0.06);
+  --shadow-lift: 0 8px 24px rgb(0 0 0 / 0.08);
+
+  --ease-venn: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* Screen gutters: 20px app, 28px onboarding. */
+  --spacing-gutter: 20px;
+  --spacing-gutter-onboarding: 28px;
+}
+
+/* Fonts are injected by next/font in app/layout.tsx. */
+@theme inline {
+  --font-display: var(--font-space-grotesk), sans-serif;
+  --font-ui: var(--font-hanken), sans-serif;
+  --font-mono: var(--font-space-mono), monospace;
+}
+
+/* ---------------------------------------------------------------------------
+   Base — mobile web hardening (docs/ARCHITECTURE.md §12.3)
+--------------------------------------------------------------------------- */
+@layer base {
+  html {
+    /* Stops iOS Safari zooming the page on input focus. */
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-ui);
+    /* Kills the grey flash on tap; components supply a real :active state. */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Removes the ~300ms double-tap-zoom delay on every control. */
+  button,
+  a,
+  [role="button"],
+  input,
+  select,
+  textarea {
+    touch-action: manipulation;
+  }
+
+  /* iOS zooms any focused input whose text is under 16px. Non-negotiable. */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  /* Controls are not selectable; message bodies deliberately still are. */
+  button,
+  [role="button"],
+  nav a {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+}
+
+@layer utilities {
+  /* Primary CTA, match pill and progress fill only — never as a page background. */
+  .bg-venn-gradient {
+    background-image: linear-gradient(90deg, #335cff, #8a5bff);
+  }
+
+  /* Use in place of h-screen: iOS Safari does not subtract the URL bar from vh. */
+  .h-dvh-safe {
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  .min-h-dvh-safe {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  /* Notch and home-indicator padding; needs viewport-fit=cover in the viewport meta. */
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Stops pull-to-refresh firing when a chat thread is scrolled to the top. */
+  .scroll-contain {
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .bubble-tail-bot {
+    border-radius: 20px 20px 20px 6px;
+  }
+  .bubble-tail-user {
+    border-radius: 20px 20px 6px 20px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Motion — docs/HANDOFF.md
+--------------------------------------------------------------------------- */
+@keyframes venn-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes venn-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes venn-dot {
+  0%,
+  80%,
+  100% {
+    opacity: 0.25;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+
+@keyframes venn-drift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(18px, 14px);
+  }
+}
+
+@keyframes venn-shine {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.12);
+  }
+}
+
+@layer utilities {
+  /* Mount: fade in and rise 8px, staggered 80ms by position. */
+  .venn-rise {
+    animation: venn-rise 0.5s var(--ease-venn) both;
+  }
+  .venn-rise:nth-child(2) {
+    animation-delay: 0.08s;
+  }
+  .venn-rise:nth-child(3) {
+    animation-delay: 0.16s;
+  }
+  .venn-rise:nth-child(4) {
+    animation-delay: 0.24s;
+  }
+  .venn-rise:nth-child(5) {
+    animation-delay: 0.32s;
+  }
+  .venn-rise:nth-child(6) {
+    animation-delay: 0.4s;
+  }
+  .venn-rise:nth-child(7) {
+    animation-delay: 0.48s;
+  }
+  .venn-rise:nth-child(8) {
+    animation-delay: 0.56s;
+  }
+  .venn-rise:nth-child(n + 9) {
+    animation-delay: 0.64s;
+  }
+
+  .venn-grow {
+    transform-origin: left;
+    animation: venn-grow 0.9s var(--ease-venn) 0.2s both;
+  }
+
+  .venn-blob-a {
+    animation: venn-drift 14s ease-in-out infinite;
+  }
+  .venn-blob-b {
+    animation: venn-drift 16s ease-in-out infinite reverse;
+  }
+
+  .venn-pulse {
+    animation: venn-shine 3s ease-in-out infinite;
+  }
+}
+
+/* One global switch for every animation in the app. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
