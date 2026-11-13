@@ -1,5 +1,6 @@
 import "server-only";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/database.types";
 
 /**
  * ⚠️ ADMIN CLIENT — service role, RLS **BYPASSED**.
@@ -25,7 +26,7 @@ export function createAdminClient() {
     );
   }
 
-  return createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, key, {
+  return createSupabaseClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, key, {
     auth: {
       // There is no user here and nothing to persist or refresh.
       autoRefreshToken: false,

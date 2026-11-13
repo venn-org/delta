@@ -1,4 +1,5 @@
 import { createBrowserClient } from "@supabase/ssr";
+import type { Database } from "@/lib/database.types";
 
 /**
  * Browser client — anon key, RLS ENFORCED.
@@ -7,7 +8,7 @@ import { createBrowserClient } from "@supabase/ssr";
  * the signed-in user, so the policies in docs/ARCHITECTURE.md §6.5 apply.
  */
 export function createClient() {
-  return createBrowserClient(
+  return createBrowserClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   );
