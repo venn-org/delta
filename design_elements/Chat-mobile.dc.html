@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Onboarding chat — mobile</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Space+Grotesk:wght@600;700&amp;family=Space+Mono&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#335CFF}a:hover{color:#8A5BFF}
+@keyframes vpulse{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.08);opacity:1}}
+@keyframes vl{0%{transform:translateX(0)}50%{transform:translateX(26px)}100%{transform:translateX(0)}}
+@keyframes vr{0%{transform:translateX(0)}50%{transform:translateX(-26px)}100%{transform:translateX(0)}}
+@keyframes vdot{0%,80%,100%{opacity:.25}40%{opacity:1}}
+@keyframes vfade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes vgrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes vfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes vshine{0%,100%{filter:brightness(1)}50%{filter:brightness(1.12)}}
+.vb,.vc{animation:vfade .5s cubic-bezier(.2,.8,.2,1) both}
+.vb:nth-child(2),.vc:nth-child(2){animation-delay:.08s}.vb:nth-child(3),.vc:nth-child(3){animation-delay:.16s}.vb:nth-child(4),.vc:nth-child(4){animation-delay:.24s}.vb:nth-child(5),.vc:nth-child(5){animation-delay:.32s}.vb:nth-child(6),.vc:nth-child(6){animation-delay:.4s}.vb:nth-child(7),.vc:nth-child(7){animation-delay:.48s}.vb:nth-child(8),.vc:nth-child(8){animation-delay:.56s}.vb:nth-child(n+9),.vc:nth-child(n+9){animation-delay:.64s}
+.vgrow{transform-origin:left;animation:vgrow .9s cubic-bezier(.2,.8,.2,1) .2s both}
+@keyframes vdrift{0%,100%{transform:translate(0,0)}50%{transform:translate(18px,14px)}}
+.vblobA{animation:vdrift 14s ease-in-out infinite}.vblobB{animation:vdrift 16s ease-in-out infinite reverse}
+.vfloat{animation:vfloat 6s ease-in-out infinite}
+.vpct{animation:vshine 3s ease-in-out infinite}
+button,a{transition:transform .15s ease,opacity .15s ease,box-shadow .2s ease,background-color .2s ease}
+button:hover{transform:translateY(-1px)}button:active{transform:scale(.98);opacity:.85}
+article{transition:transform .2s ease,box-shadow .2s ease}article:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08)!important}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+</style>
+</helmet>
+<div style="width:390px;height:1000px;box-sizing:border-box;overflow:hidden;font-family:'Hanken Grotesk',sans-serif;color:#14161B;background:#F2F3F7;position:relative">
+<div style="height:100%;display:flex;flex-direction:column"><div style="background:#FCFCFD;padding:14px 20px 14px;display:flex;flex-direction:column;gap:12px;border-bottom:1px solid #E6E8EE"><div style="display:flex;align-items:center;gap:10px"><button type="button" aria-label="Back" style="width:44px;height:44px;border:0;background:none;color:#14161B;padding:0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><div aria-hidden="true" style="width:36px;height:36px;border-radius:50%;background:#14161B;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex:none">V</div><div style="flex:1"><div style="font-weight:700">Venn</div><div style="font-size:12px;color:#15803D">your flatmate matchmaker</div></div></div><div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between"><span style="font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:0.12em;font-size:11px;color:#5A6072">Question 6 of 10</span><span style="font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:0.12em;font-size:11px;color:#335CFF">60%</span></div><div role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="Progress to matches" style="height:6px;border-radius:50px;background:#E6E8EE"><div class="vgrow" style="width:60%;height:6px;border-radius:50px;background:linear-gradient(90deg,#335CFF,#8A5BFF)"></div></div></div></div><div style="flex:1;padding:16px;display:flex;flex-direction:column;gap:10px"><div class="vb" style="display:flex;gap:8px;align-items:flex-end"><div aria-hidden="true" style="width:28px;height:28px;border-radius:50%;background:#14161B;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;flex:none">V</div><div style="max-width:280px;background:#fff;border-radius:20px 20px 20px 6px;padding:12px 14px;font-size:15px;line-height:1.4;box-shadow:0 1px 3px rgba(0,0,0,.06)">Okay, real talk. When does your day usually end? 🌙</div></div>
+<div class="vb" style="display:flex;justify-content:flex-end"><div style="max-width:260px;background:#335CFF;color:#fff;border-radius:20px 20px 6px 20px;padding:12px 14px;font-size:15px;line-height:1.4">Night owl, easily 2am</div></div>
+<div class="vb" style="display:flex;gap:8px;align-items:flex-end"><div aria-hidden="true" style="width:28px;height:28px;border-radius:50%;background:#14161B;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;flex:none">V</div><div style="max-width:280px;background:#fff;border-radius:20px 20px 20px 6px;padding:12px 14px;font-size:15px;line-height:1.4;box-shadow:0 1px 3px rgba(0,0,0,.06)">Noted. Your future flatmate won't judge your 2am Maggi.</div></div>
+<div class="vb" style="display:flex;gap:8px;align-items:flex-end"><div aria-hidden="true" style="width:28px;height:28px;border-radius:50%;background:#14161B;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;flex:none">V</div><div style="max-width:280px;background:#fff;border-radius:20px 20px 20px 6px;padding:12px 14px;font-size:15px;line-height:1.4;box-shadow:0 1px 3px rgba(0,0,0,.06)">How clean do you keep shared spaces? Slide it honestly, nobody's checking (yet).</div></div>
+<div style="background:#fff;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+<label for="cl" style="font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:0.12em;font-size:11px;color:#5A6072">Cleanliness</label>
+<div style="position:relative;height:28px"><div style="position:absolute;top:12px;left:0;right:0;height:4px;border-radius:50px;background:#E6E8EE"></div><div style="position:absolute;top:12px;left:0;width:72%;height:4px;border-radius:50px;background:linear-gradient(90deg,#335CFF,#8A5BFF)"></div><div style="position:absolute;top:2px;left:calc(72% - 12px);width:24px;height:24px;border-radius:50%;background:#fff;border:2px solid #8A5BFF;box-shadow:0 2px 6px rgba(0,0,0,.15)"></div></div>
+<input id="cl" type="range" min="1" max="5" value="4" style="position:absolute;opacity:0;width:1px;height:1px">
+<div style="display:flex;justify-content:space-between;font-size:13px;color:#5A6072"><span>Chill 😌</span><span style="font-weight:700;color:#14161B">Pretty tidy</span><span>Spotless ✨</span></div></div>
+<div class="vb" style="display:flex;justify-content:flex-end"><div style="max-width:260px;background:#335CFF;color:#fff;border-radius:20px 20px 6px 20px;padding:12px 14px;font-size:15px;line-height:1.4">Pretty tidy, 4/5</div></div>
+<div class="vb" style="display:flex;gap:8px;align-items:flex-end"><div aria-hidden="true" style="width:28px;height:28px;border-radius:50%;background:#14161B;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;flex:none">V</div><div style="max-width:280px;background:#fff;border-radius:20px 20px 20px 6px;padding:12px 14px;font-size:15px;line-height:1.4;box-shadow:0 1px 3px rgba(0,0,0,.06)">Describe your ideal Sunday in one line ☀️</div></div>
+<div class="vb" style="display:flex;justify-content:flex-end"><div style="max-width:260px;background:#335CFF;color:#fff;border-radius:20px 20px 6px 20px;padding:12px 14px;font-size:15px;line-height:1.4">Long breakfast at Carter Road, nap, then cricket on TV</div></div>
+<div class="vb" style="display:flex;gap:8px;align-items:flex-end"><div aria-hidden="true" style="width:28px;height:28px;border-radius:50%;background:#14161B;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;flex:none">V</div><div style="max-width:280px;background:#fff;border-radius:20px 20px 20px 6px;padding:12px 14px;font-size:15px;line-height:1.4;box-shadow:0 1px 3px rgba(0,0,0,.06)">Solid. How do you feel about guests and house parties?</div></div>
+<div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:36px"><button type="button" style="background:#fff;color:#14161B;border:1.5px solid #E6E8EE;border-radius:50px;padding:10px 16px;font:600 14px 'Hanken Grotesk',sans-serif;min-height:44px;cursor:pointer">Friends over often</button><button type="button" style="background:#335CFF;color:#fff;border:1.5px solid #335CFF;border-radius:50px;padding:10px 16px;font:600 14px 'Hanken Grotesk',sans-serif;min-height:44px;cursor:pointer">Once in a while</button><button type="button" style="background:#fff;color:#14161B;border:1.5px solid #E6E8EE;border-radius:50px;padding:10px 16px;font:600 14px 'Hanken Grotesk',sans-serif;min-height:44px;cursor:pointer">Rarely</button><button type="button" style="background:#fff;color:#14161B;border:1.5px solid #E6E8EE;border-radius:50px;padding:10px 16px;font:600 14px 'Hanken Grotesk',sans-serif;min-height:44px;cursor:pointer">No parties pls</button></div>
+<div class="vb" style="display:flex;gap:8px;align-items:flex-end"><div aria-hidden="true" style="width:28px;height:28px;border-radius:50%;background:#14161B;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;flex:none">V</div><div aria-label="Venn is typing" role="img" style="background:#fff;border-radius:20px 20px 20px 6px;padding:14px 16px;display:flex;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:#5A6072;animation:vdot 1.2s 0.0s infinite"></span><span style="width:7px;height:7px;border-radius:50%;background:#5A6072;animation:vdot 1.2s 0.2s infinite"></span><span style="width:7px;height:7px;border-radius:50%;background:#5A6072;animation:vdot 1.2s 0.4s infinite"></span></div></div></div><div style="background:#FCFCFD;border-top:1px solid #E6E8EE;padding:12px 16px;display:flex;gap:10px;align-items:center"><label for="m" style="position:absolute;width:1px;height:1px;overflow:hidden">Message</label><input id="m" placeholder="Or type your own answer…" style="flex:1;border:1px solid #E6E8EE;background:#fff;border-radius:50px;padding:13px 18px;font:15px 'Hanken Grotesk',sans-serif;color:#14161B"><button type="button" aria-label="Send" style="width:46px;height:46px;border-radius:50%;border:0;background:linear-gradient(90deg,#335CFF,#8A5BFF);color:#fff;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12l16-8-6 16-3-7z"/></svg></button></div></div>
+<div aria-hidden="true" style="position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:50"><div class="vblobA" style="position:absolute;width:429px;height:429px;border-radius:50%;background:#335CFF;opacity:.09;filter:blur(30px);left:-175px;top:-156px"></div><div class="vblobB" style="position:absolute;width:390px;height:390px;border-radius:50%;background:#8A5BFF;opacity:.09;filter:blur(30px);right:-156px;bottom:-136px"></div></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1000}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
