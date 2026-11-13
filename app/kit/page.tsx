@@ -73,6 +73,7 @@ function Section({
 export default function KitPage() {
   const [sleep, setSleep] = useState<string | null>("night_owl");
   const [clean, setClean] = useState(4);
+  const [step, setStep] = useState(6);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [sent, setSent] = useState<string[]>([]);
 
@@ -144,7 +145,32 @@ export default function KitPage() {
           endLabels={["Chill 😌", "Spotless ✨"]}
           valueLabel={CLEAN_LABELS[clean - 1]}
         />
-        <ProgressBar current={6} total={10} />
+
+        <ProgressBar current={step} total={10} />
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            className="min-h-11 flex-1 px-4 text-sm"
+            onClick={() => setStep((s) => Math.max(1, s - 1))}
+            disabled={step === 1}
+          >
+            Back
+          </Button>
+          <Button
+            className="min-h-11 flex-1 px-4 text-sm"
+            onClick={() => setStep((s) => Math.min(10, s + 1))}
+            disabled={step === 10}
+          >
+            Next question
+          </Button>
+          <Button
+            variant="ink"
+            className="min-h-11 px-4 text-sm"
+            onClick={() => setStep(1)}
+          >
+            Reset
+          </Button>
+        </div>
       </Section>
 
       <Section title="Match cards">
