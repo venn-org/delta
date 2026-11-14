@@ -12,7 +12,7 @@
     "db:test": "supabase test db"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22 <27"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

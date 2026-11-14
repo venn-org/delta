@@ -48,7 +48,18 @@ it on a deployment.
 | `npm run db:reset` | Replay every migration into an empty local database |
 | `npm run db:test` | pgTAP suite — the RLS tests |
 
-CI runs all of these on every pull request (`.github/workflows/ci.yml`).
+CI runs typecheck, lint and build on every pull request
+(`.github/workflows/ci.yml`). It does **not** run the database checks — run
+those yourself before pushing anything that touches `supabase/`:
+
+```bash
+npm run db:reset && npm run db:test
+```
+
+`db:reset` replays every migration into an empty database, which is the check
+that catches a migration only working as a patch on your local state.
+`db:test` is the RLS suite, and RLS is the authorization boundary — so a green
+CI tells you the app compiles and nothing more.
 
 ## Routes
 

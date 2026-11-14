@@ -107,15 +107,26 @@ the eleven questions) lives in migration `…011`, so it ships with the schema.
 
 ## 5. CI
 
-`.github/workflows/ci.yml`, on every pull request and every push to `main`:
+`.github/workflows/ci.yml`, on every pull request and every push to `main`,
+runs one job: **web** — typecheck, lint, build. The build gets placeholder env
+values of the right shape; no route connects to Supabase during a build.
 
-- **web** — typecheck, lint, build. The build gets placeholder env values of
-  the right shape; no route connects to Supabase during a build.
-- **database** — `supabase start` (which replays all migrations from empty)
-  then `supabase test db`.
+**The database checks are not in CI.** They run on your machine:
 
-The database job is the security job. A green web job with a red database job
-means the app compiles and leaks.
+```bash
+npm run db:reset && npm run db:test
+```
+
+Do that before pushing anything under `supabase/`. The job was removed after
+the mail container failed to bind port 54424 on a GitHub runner — the schema
+replay itself worked, and the suite does not need mail, so restoring it is
+one flag (`supabase start -x mailpit`).
+
+Worth restoring before launch, because this is the security gap in the
+pipeline: RLS is the entire authorization boundary (§3.2), and with no
+database job, nothing automated checks that one user cannot read another's
+rows. A green CI means the app compiles. It says nothing about whether it
+leaks.
 
 ## 6. Still missing before this is a real launch
 
