@@ -1,7 +1,7 @@
-import { redirect } from "next/navigation";
 import { BgBlobs } from "@/components/BgBlobs";
 import { VennMark } from "@/components/VennMark";
 import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/server/auth";
 
 /**
  * /matches — Results-locked / Results-mobile / No-matches. PLACEHOLDER.
@@ -16,12 +16,9 @@ import { createClient } from "@/lib/supabase/server";
 export const instant = false;
 
 export default async function MatchesPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/signin");
+  await requireUser();
 
+  const supabase = await createClient();
   const { count } = await supabase
     .from("match_results")
     .select("candidate_id", { count: "exact", head: true });
@@ -34,8 +31,7 @@ export default async function MatchesPage() {
         <VennMark size={40} />
 
         <p className="mt-6 font-mono text-[11px] tracking-[0.12em] text-indigo uppercase">
-          {/* eslint-disable-next-line react/jsx-no-comment-textnodes */}
-          // You&apos;re in
+          {"// You're in"}
         </p>
 
         <h1 className="mt-3 font-display text-[28px] leading-[1.15] font-bold tracking-[-0.03em] text-ink">

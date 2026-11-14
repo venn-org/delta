@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { requireUser } from "@/server/auth";
 
 /**
  * /finding — Finding.dc.html. PLACEHOLDER.
@@ -15,11 +15,6 @@ import { createClient } from "@/lib/supabase/server";
 export const instant = false;
 
 export default async function FindingPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/signin");
-
+  await requireUser();
   redirect("/matches");
 }
