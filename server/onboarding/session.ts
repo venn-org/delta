@@ -1,5 +1,6 @@
 import "server-only";
 import { cookies, headers } from "next/headers";
+import { connection } from "next/server";
 import { createHash, randomUUID } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { AnswerValue } from "@/lib/answers";
@@ -59,6 +60,11 @@ function rowToSession(row: {
 
 /** Reads the current session, or null. Safe to call from a Server Component. */
 export async function getSession(): Promise<OnboardingSession | null> {
+  // The expiry comparison below uses new Date(), which Cache Components
+  // treats as an unstable value during prerender. This marks the read as
+  // request-time so prerendering stops here instead of failing.
+  await connection();
+
   const jar = await cookies();
   const id = jar.get(SESSION_COOKIE)?.value;
   if (!id) return null;

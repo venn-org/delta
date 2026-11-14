@@ -20,6 +20,12 @@ export function useKeyboardInset(): number {
     const vv = window.visualViewport;
     if (!vv) return;
 
+    // Touch devices only. On a desktop browser the visual and layout
+    // viewports can differ for unrelated reasons (zoom, an embedded pane),
+    // which was reading as a permanently-open keyboard and padding the
+    // composer off the bottom of the phone frame.
+    if (!window.matchMedia?.("(pointer: coarse)").matches) return;
+
     const update = () => {
       // What the layout viewport has that the visual viewport cannot show.
       const covered = window.innerHeight - (vv.height + vv.offsetTop);

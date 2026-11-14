@@ -433,14 +433,14 @@ isOneToOne: false
                   ]
                 },"questions": {
                   Row: {
-                    "answer_kind": Database["public"]['Enums']["answer_kind"],"asked_of": (Database["public"]['Enums']["user_role"])[],"comparator": Database["public"]['Enums']["comparator"],"friction_label": string | null,"friction_sensitive": boolean,"helper": string | null,"is_active": boolean,"key": string,"match_label": string | null,"options": Json | null,"ordinal_max": number | null,"ordinal_min": number | null,"prompt": string,"sort_order": number,"version": number,"weight": number
+                    "ack": string | null,"answer_kind": Database["public"]['Enums']["answer_kind"],"asked_of": (Database["public"]['Enums']["user_role"])[],"comparator": Database["public"]['Enums']["comparator"],"friction_label": string | null,"friction_sensitive": boolean,"helper": string | null,"is_active": boolean,"key": string,"match_label": string | null,"options": Json | null,"ordinal_max": number | null,"ordinal_min": number | null,"placeholder": string | null,"prompt": string,"sort_order": number,"version": number,"weight": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "answer_kind": Database["public"]['Enums']["answer_kind"],"asked_of"?: (Database["public"]['Enums']["user_role"])[],"comparator": Database["public"]['Enums']["comparator"],"friction_label"?: string | null,"friction_sensitive"?: boolean,"helper"?: string | null,"is_active"?: boolean,"key": string,"match_label"?: string | null,"options"?: Json | null,"ordinal_max"?: number | null,"ordinal_min"?: number | null,"prompt": string,"sort_order": number,"version"?: number,"weight"?: number
+                    "ack"?: string | null,"answer_kind": Database["public"]['Enums']["answer_kind"],"asked_of"?: (Database["public"]['Enums']["user_role"])[],"comparator": Database["public"]['Enums']["comparator"],"friction_label"?: string | null,"friction_sensitive"?: boolean,"helper"?: string | null,"is_active"?: boolean,"key": string,"match_label"?: string | null,"options"?: Json | null,"ordinal_max"?: number | null,"ordinal_min"?: number | null,"placeholder"?: string | null,"prompt": string,"sort_order": number,"version"?: number,"weight"?: number
                   }
                   Update: {
-                    "answer_kind"?: Database["public"]['Enums']["answer_kind"],"asked_of"?: (Database["public"]['Enums']["user_role"])[],"comparator"?: Database["public"]['Enums']["comparator"],"friction_label"?: string | null,"friction_sensitive"?: boolean,"helper"?: string | null,"is_active"?: boolean,"key"?: string,"match_label"?: string | null,"options"?: Json | null,"ordinal_max"?: number | null,"ordinal_min"?: number | null,"prompt"?: string,"sort_order"?: number,"version"?: number,"weight"?: number
+                    "ack"?: string | null,"answer_kind"?: Database["public"]['Enums']["answer_kind"],"asked_of"?: (Database["public"]['Enums']["user_role"])[],"comparator"?: Database["public"]['Enums']["comparator"],"friction_label"?: string | null,"friction_sensitive"?: boolean,"helper"?: string | null,"is_active"?: boolean,"key"?: string,"match_label"?: string | null,"options"?: Json | null,"ordinal_max"?: number | null,"ordinal_min"?: number | null,"placeholder"?: string | null,"prompt"?: string,"sort_order"?: number,"version"?: number,"weight"?: number
                   }
                   Relationships: [
                     

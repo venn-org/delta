@@ -6,6 +6,7 @@ import { ChatBubble } from "@/components/ChatBubble";
 import { ProgressBar } from "@/components/ProgressBar";
 import { QuickReplyChips } from "@/components/QuickReplyChips";
 import { TypingIndicator } from "@/components/TypingIndicator";
+import { VennMark } from "@/components/VennMark";
 import { AnswerInput } from "./AnswerInput";
 import { FlatDetailsForm, type FlatDraft } from "./FlatDetailsForm";
 import { describeAnswer } from "@/lib/answers";
@@ -49,17 +50,49 @@ export function ChatFlow({
   const [error, setError] = useState<string | null>(null);
   const [flatDone, setFlatDone] = useState(false);
 
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const stickRef = useRef(true);
   const startedRef = useRef(false);
 
   const push = useCallback((from: "bot" | "user", text: string) => {
     setEntries((prev) => [...prev, { id: nextId(), from, text }]);
   }, []);
 
-  // Keep the newest message in view, including while the keyboard is open.
+  /**
+   * Pins the thread to the bottom.
+   *
+   * Two frames of delay, not one: the first lets React commit the new
+   * bubble, the second lets layout settle (the answer controls below the
+   * thread change height as the question changes). Scrolling on the same
+   * frame as the push lands short, which is why the last reply was always
+   * half off-screen.
+   */
+  const scrollToBottom = useCallback((smooth = true) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const el = scrollerRef.current;
+        if (!el) return;
+        el.scrollTo({ top: el.scrollHeight, behavior: smooth ? "smooth" : "auto" });
+      });
+    });
+  }, []);
+
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [entries, stage]);
+    if (stickRef.current) scrollToBottom();
+  }, [entries, stage, scrollToBottom]);
+
+  // The controls under the thread resize when the question changes, which
+  // moves the bottom. Follow it.
+  useEffect(() => {
+    const el = scrollerRef.current;
+    const content = el?.firstElementChild;
+    if (!el || !content || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => {
+      if (stickRef.current) scrollToBottom(false);
+    });
+    ro.observe(content);
+    return () => ro.disconnect();
+  }, [scrollToBottom]);
 
   /** Asks question `i`, after a beat of typing. */
   const ask = useCallback(
@@ -177,10 +210,27 @@ export function ChatFlow({
   const total = questions.length + (role === "haver" ? 1 : 0);
 
   return (
-    <div className="flex min-h-dvh-safe flex-col bg-canvas">
+    <div className="flex screen-h flex-col overflow-hidden bg-canvas">
       <Header current={Math.min(answered + 1, total)} total={total} />
 
-      <div className="scroll-contain flex-1 overflow-y-auto px-5 py-4">
+      <div
+        ref={scrollerRef}
+        // Stickiness is decided from USER gestures only. Reading it from
+        // onScroll fed our own smooth-scroll back in: mid-flight the gap is
+        // still large, which switched stickiness off and left every reply
+        // parked half off-screen.
+        onWheel={(e) => {
+          const el = e.currentTarget;
+          stickRef.current =
+            el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+        }}
+        onTouchMove={(e) => {
+          const el = e.currentTarget;
+          stickRef.current =
+            el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+        }}
+        className="scroll-contain min-h-0 flex-1 overflow-y-auto px-5 py-4"
+      >
         <div className="flex flex-col gap-2.5">
           {resuming && entries.length === 0 && (
             <p className="py-2 text-center font-mono text-[11px] tracking-[0.12em] text-slate uppercase">
@@ -215,7 +265,7 @@ export function ChatFlow({
           </p>
         )}
 
-        <div ref={bottomRef} className="h-2" />
+        <div className="h-2" />
       </div>
 
       <div className="bg-canvas">
@@ -258,12 +308,7 @@ function Header({ current, total }: { current: number; total: number }) {
   return (
     <header className="pt-safe sticky top-0 z-30 border-b border-mist bg-paper px-5 pt-3 pb-3">
       <div className="flex items-center gap-2.5">
-        <span
-          aria-hidden="true"
-          className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-ink text-xs font-bold text-white"
-        >
-          V
-        </span>
+        <VennMark size={36} inset />
         <span className="flex flex-col">
           <span className="font-display text-[17px] font-bold tracking-[-0.03em] text-ink">
             Venn
