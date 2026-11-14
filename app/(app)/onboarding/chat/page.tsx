@@ -1,5 +1,6 @@
 import { ChatFlow } from "@/components/chat/ChatFlow";
 import { loadQuestions, questionsForRole } from "@/server/onboarding/questions";
+import { requireUnclaimed } from "@/server/auth";
 import { getSession } from "@/server/onboarding/session";
 
 /**
@@ -20,6 +21,13 @@ import { getSession } from "@/server/onboarding/session";
 export const instant = false;
 
 export default async function ChatPage() {
+  // A signed-in user belongs in the app, not back at the start — unless their
+  // answers never got claimed, in which case this is exactly where they need
+  // to be. `status` is only moved off 'onboarding' by
+  // claim_onboarding_session, so it is the signal for that (anti-goal A4).
+  // Re-taking the chat deliberately is /profile/answers, a different screen.
+  await requireUnclaimed();
+
   const [all, session] = await Promise.all([loadQuestions(), getSession()]);
 
   // `role` is answered first and unlocks the rest, so before it is answered

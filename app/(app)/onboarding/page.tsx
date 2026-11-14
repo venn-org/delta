@@ -1,8 +1,22 @@
 import { BgBlobs } from "@/components/BgBlobs";
 import { ButtonLink } from "@/components/Button";
+import { requireUnclaimed } from "@/server/auth";
 
-/** /app — Main.dc.html. Placeholder until phase 1 builds the real screen. */
-export default function AppHome() {
+/**
+ * /onboarding — Main.dc.html. The intro, and where the marketing site sends
+ * everyone, so it is the first screen most people ever see.
+ *
+ * Reads the session to turn a signed-in user away, so it blocks on the server.
+ */
+export const instant = false;
+
+export default async function OnboardingIntro() {
+  await requireUnclaimed();
+
+  return <Intro />;
+}
+
+function Intro() {
   return (
     <div className="screen-min relative flex flex-col justify-between px-7 pt-16 pb-10">
       <BgBlobs />
