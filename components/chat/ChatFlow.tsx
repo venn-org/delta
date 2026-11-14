@@ -7,11 +7,17 @@ import { ProgressBar } from "@/components/ProgressBar";
 import { QuickReplyChips } from "@/components/QuickReplyChips";
 import { TypingIndicator } from "@/components/TypingIndicator";
 import { VennMark } from "@/components/VennMark";
+import { FindingScreen } from "@/components/FindingScreen";
 import { AnswerInput } from "./AnswerInput";
 import { FlatDetailsForm, type FlatDraft } from "./FlatDetailsForm";
 import { describeAnswer } from "@/lib/answers";
 import type { AnswerValue, Question } from "@/lib/answers";
-import { saveFlatDetails, startOver, submitAnswer } from "@/app/(app)/onboarding/chat/actions";
+import {
+  finishOnboarding,
+  saveFlatDetails,
+  startOver,
+  submitAnswer,
+} from "@/app/(app)/onboarding/chat/actions";
 
 const TYPING_MS = 700;
 
@@ -49,6 +55,10 @@ export function ChatFlow({
   const [answered, setAnswered] = useState(answeredKeys.length);
   const [error, setError] = useState<string | null>(null);
   const [flatDone, setFlatDone] = useState(false);
+  // Drives the second line of the finding screen from "working" to "done".
+  const [wrapUpDone, setWrapUpDone] = useState(false);
+  // Starts the fade on the way out, so the screen does not just vanish.
+  const [leaving, setLeaving] = useState(false);
 
   const scrollerRef = useRef<HTMLDivElement>(null);
   const stickRef = useRef(true);
@@ -99,8 +109,12 @@ export function ChatFlow({
     (i: number) => {
       const q = questions[i];
       if (!q) {
+        // Don't snap from the last answer straight into a form. The finding
+        // screen covers the beat, and the prefetch below means the handoff is
+        // a deliberate pause rather than a wait on the network.
         setStage("finishing");
-        router.push("/signin");
+        router.prefetch("/signin");
+        router.prefetch("/finding");
         return;
       }
       setStage("typing");
@@ -113,6 +127,41 @@ export function ChatFlow({
     },
     [questions, push, router],
   );
+
+  /**
+   * The handoff to /signin.
+   *
+   * Long enough to register as a step of its own and short enough not to feel
+   * like a stall — the second line flips to done partway through, so the
+   * screen is doing something rather than just sitting there.
+   *
+   * It is a fixed pause, not a progress bar: nothing slow is actually
+   * happening here. The real wait is after signup, when the claim runs
+   * compute_matches_for inline, and that is what the /finding route covers.
+   */
+  useEffect(() => {
+    if (stage !== "finishing") return;
+
+    // Paced so each beat is legible: the screen settles, the second line
+    // lands, it holds long enough to actually be read, then fades. Two
+    // seconds end to end was fast enough to register as a flicker.
+    // Where this goes depends on whether they are already signed in, which
+    // only the server knows. Asked for immediately so the answer is waiting
+    // by the time the screen has played out.
+    const destination = finishOnboarding();
+
+    const flip = setTimeout(() => setWrapUpDone(true), 1600);
+    const fade = setTimeout(() => setLeaving(true), 3800);
+    const go = setTimeout(async () => {
+      router.push(await destination);
+    }, 4400);
+
+    return () => {
+      clearTimeout(flip);
+      clearTimeout(fade);
+      clearTimeout(go);
+    };
+  }, [stage, router]);
 
   // Opening line. Guarded so React's development double-effect does not
   // greet the user twice.
@@ -208,6 +257,29 @@ export function ChatFlow({
 
   const current = questions[cursor];
   const total = questions.length + (role === "haver" ? 1 : 0);
+
+  // Takes over the whole screen: the thread and the composer are finished
+  // with, and leaving them underneath invites a last-second edit that would
+  // be lost on the redirect.
+  if (stage === "finishing") {
+    return (
+      <FindingScreen
+        eyebrow="// That's everything"
+        title="Reading between your answers…"
+        steps={[
+          { label: `All ${answered} answers saved`, state: "done" },
+          {
+            label: wrapUpDone
+              ? "Ready to find your overlap"
+              : "Working out what matters to you",
+            state: wrapUpDone ? "done" : "active",
+          },
+        ]}
+        footnote="One quick step to save these to you."
+        leaving={leaving}
+      />
+    );
+  }
 
   return (
     <div className="flex screen-h flex-col overflow-hidden bg-canvas">

@@ -34,10 +34,13 @@ function GoogleIcon() {
 export function SignInForm({
   answered,
   total,
+  returning = false,
   initialError = null,
 }: {
   answered: number;
   total: number;
+  /** Came from "Already have an account?" rather than from the chat. */
+  returning?: boolean;
   initialError?: string | null;
 }) {
   const [firstName, setFirstName] = useState("");
@@ -45,7 +48,9 @@ export function SignInForm({
   const [error, setError] = useState<string | null>(initialError);
   const [pending, startTransition] = useTransition();
 
-  const hasAnswers = answered > 0;
+  // A returning user is signing IN, not saving anything — even if a stale
+  // onboarding cookie happens to be sitting in the browser.
+  const hasAnswers = answered > 0 && !returning;
   const emailLooksValid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim());
   const canSend = firstName.trim().length > 0 && emailLooksValid && !pending;
 
@@ -146,7 +151,7 @@ export function SignInForm({
           </p>
         )}
 
-        {!hasAnswers && (
+        {returning && (
           <p className="mt-6 text-center text-[13px] leading-relaxed text-slate">
             First time here?{" "}
             <Link
