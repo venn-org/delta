@@ -17,7 +17,8 @@ import { clearPendingSignIn, setPendingSignIn } from "./pending";
  * establish who someone is.
  */
 
-export { requireUser, requireUnclaimed } from "./guards";
+export { requireStage, resolvePosition } from "./guards";
+export type { Stage, Position } from "./guards";
 export { getPendingSignIn, clearPendingSignIn } from "./pending";
 export type { PendingSignIn } from "./pending";
 

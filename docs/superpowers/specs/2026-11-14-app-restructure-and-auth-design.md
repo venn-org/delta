@@ -306,10 +306,64 @@ the three that are not mine to make.
   screen asks for was not in the email at all.
   `supabase/templates/magic_link.html` leads with the code and keeps the link
   as a fallback.
+- **The finding screen is light, not dark.** `Finding.dc.html` renders on
+  `#14161B`, but every other screen is on canvas, and dropping to full black
+  for a couple of seconds mid-flow reads as a glitch rather than a transition.
+  Same composition and the same merging circles, on the app's own background,
+  with `mix-blend-multiply` so the overlap still darkens. It fades in on mount
+  and out before navigating, and holds for about four seconds — two was fast
+  enough to register as a flicker.
 - **`await connection()` moved into `lib/supabase/server.ts`.** Supabase's auth
   client compares token expiry against the current time, which Cache Components
   rejects as an unstable value during prerender. Putting it in the client
   itself means every route gets it without having to remember.
+
+### 10.1a The routing cycle (supersedes §7.1 and §7.2)
+
+§7.1 had each route decide for itself where someone belonged, which is how
+two screens end up redirecting into each other. There is now one function,
+`resolvePosition()` in `server/auth/guards.ts`, and every route defers to it.
+
+It resolves to a **stage**, not a path, and that distinction is what keeps it
+loop-free:
+
+| Who | Stage | Sent to |
+|---|---|---|
+| Signed in, answers claimed | `app` | `/matches` |
+| Signed in, nothing claimed yet | `onboarding` | the chat, or the intro if there is nothing to resume |
+| Signed out, every question answered | `signin` | `/signin` |
+| Signed out, part way through | `onboarding` | `/onboarding/chat` |
+| Signed out, nothing at all | `onboarding` | `/onboarding` |
+
+The onboarding stage covers **two** screens, the intro and the chat, and
+anyone in that stage may be on either. Resolving to a single path instead
+means a visitor with no answers resolves to `/onboarding`, so `/onboarding/chat`
+bounces them back and the chat is unreachable — which is exactly what a
+path-based version of this did.
+
+Two changes to behaviour fall out of it:
+
+- **Nobody is shown a sign-in form before the questions.** The old rule 4 sent
+  a cold visitor to `/signin`; there is nothing to sign in to yet and nothing
+  to save, so they now start at `/onboarding`. This replaces anti-goal A3's
+  link-back with something simpler.
+- **Returning users get an explicit door.** `/signin?returning=1`, linked as
+  "Already have an account?" on the intro, is the one way to the form without
+  going through the chat. Without it the rule above locks existing users out.
+  `/verify` redirects there too, rather than to plain `/signin`, which would
+  resolve them onward into the chat.
+
+`/matches` uses `requireStage("app")`, not a "is anyone signed in?" check:
+someone whose claim failed is signed in but has no business on a match list.
+There is deliberately no `requireUser()` any more.
+
+**The loop that made this necessary.** A signed-in user whose claim failed is
+sent back to the chat; finishing it used to push to `/signin`, which bounced to
+`/matches`, which sent them back to the chat. The chat's last step now calls
+`finishOnboarding()`, a server action that runs the claim directly when the
+person is already signed in. If that claim fails again the session is dropped
+and they start clean, because the only way it fails there is a session already
+claimed by somebody else — and retrying the same one would not terminate.
 
 ### 10.2 Not mine to answer
 
