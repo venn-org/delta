@@ -97,5 +97,5 @@ export async function saveFlatDetails(
  */
 export async function startOver(): Promise<void> {
   await clearSession();
-  revalidatePath("/app/chat");
+  revalidatePath("/onboarding/chat");
 }

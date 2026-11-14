@@ -3,7 +3,7 @@ import { loadQuestions, questionsForRole } from "@/server/onboarding/questions";
 import { getSession } from "@/server/onboarding/session";
 
 /**
- * /app/chat — the onboarding chat.
+ * /onboarding/chat — the onboarding chat.
  *
  * Questions come from the database, and answers are written against an
  * anonymous session keyed by an httpOnly cookie. Nobody has signed up yet:

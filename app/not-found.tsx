@@ -43,7 +43,7 @@ export default function NotFound() {
       </div>
 
       <div className="relative z-10 mt-2 flex flex-wrap justify-center gap-3">
-        <ButtonLink href="/app">Back to Venn</ButtonLink>
+        <ButtonLink href="/onboarding">Back to Venn</ButtonLink>
         <ButtonLink href="/" variant="ghost">
           Home
         </ButtonLink>

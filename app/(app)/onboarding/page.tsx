@@ -32,7 +32,7 @@ export default function AppHome() {
       </div>
 
       <div className="relative z-10 flex flex-col gap-3">
-        <ButtonLink href="/app/chat" block>
+        <ButtonLink href="/onboarding/chat" block>
           Start the chat
         </ButtonLink>
         <p className="text-center text-[13px] text-slate">
