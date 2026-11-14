@@ -71,8 +71,7 @@ export function VerifyForm({ email }: { email: string }) {
         <VennMark size={40} />
 
         <p className="mt-6 font-mono text-[11px] tracking-[0.12em] text-indigo uppercase">
-          {/* eslint-disable-next-line react/jsx-no-comment-textnodes */}
-          // Check your email
+          {"// Check your email"}
         </p>
 
         <h1 className="mt-3 font-display text-[28px] leading-[1.15] font-bold tracking-[-0.03em] text-ink">

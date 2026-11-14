@@ -64,8 +64,7 @@ export function SignInForm({
           </p>
         ) : (
           <p className="mt-6 font-mono text-[11px] tracking-[0.12em] text-indigo uppercase">
-            {/* eslint-disable-next-line react/jsx-no-comment-textnodes */}
-            // Welcome back
+            {"// Welcome back"}
           </p>
         )}
 
