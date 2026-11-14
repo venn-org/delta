@@ -15,7 +15,7 @@ import type { ReactNode } from "react";
  */
 export function PhoneFrame({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-dvh-safe relative overflow-hidden bg-canvas min-[861px]:flex min-[861px]:items-center min-[861px]:justify-center min-[861px]:gap-16">
+    <div className="min-h-dvh-safe relative overflow-hidden bg-canvas min-[861px]:flex min-[861px]:items-center min-[861px]:justify-center min-[861px]:gap-16 min-[861px]:py-14">
       {/* Desktop-only canvas blobs. */}
       <div
         aria-hidden="true"
@@ -61,7 +61,20 @@ export function PhoneFrame({ children }: { children: ReactNode }) {
       <div
         className="contents min-[861px]:relative min-[861px]:z-10 min-[861px]:block min-[861px]:flex-none min-[861px]:bg-ink min-[861px]:p-[11px] min-[861px]:shadow-[0_30px_80px_rgba(0,0,0,.28)] min-[861px]:[border-radius:52px]"
       >
-        <div className="min-h-dvh-safe relative bg-canvas min-[861px]:h-[844px] min-[861px]:min-h-0 min-[861px]:w-[390px] min-[861px]:overflow-x-hidden min-[861px]:overflow-y-auto min-[861px]:[border-radius:40px] scroll-contain">
+        {/*
+          `phone-screen` sets --screen-h to the bezel's inner height above
+          861px, so children using `screen-h` / `screen-min` size to the frame
+          rather than the browser window. Overflow is left to the screen
+          inside: a scroll container here would fight the chat's own.
+        */}
+        {/*
+          `phone-screen` carries the desktop sizing (width, height, radius,
+          overflow) in CSS, and sets --screen-h to the bezel's inner height so
+          children using `screen-h` / `screen-min` size to the frame rather
+          than the browser window. That is what lets the chat's own scroll
+          container work inside the frame.
+        */}
+        <div className="phone-screen screen-min relative bg-canvas">
           {children}
         </div>
       </div>

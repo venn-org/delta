@@ -59,7 +59,7 @@ export function ChatComposer({
 
   return (
     <div
-      className="pb-safe sticky bottom-0 z-30 border-t border-mist bg-paper px-5 py-3"
+      className="sticky bottom-0 z-30 border-t border-mist bg-paper px-5 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))]"
       style={keyboardInset ? { paddingBottom: keyboardInset } : undefined}
     >
       <form

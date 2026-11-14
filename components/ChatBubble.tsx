@@ -1,16 +1,10 @@
 import { cn } from "@/lib/cn";
+import { VennMark } from "./VennMark";
 import type { ReactNode } from "react";
 
 /** The Venn mark that sits beside every bot bubble. */
 function BotAvatar() {
-  return (
-    <span
-      aria-hidden="true"
-      className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-ink text-[10px] font-bold text-white"
-    >
-      V
-    </span>
-  );
+  return <VennMark size={28} inset />;
 }
 
 /**
