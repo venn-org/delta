@@ -4,11 +4,14 @@ import { redirect } from "next/navigation";
 import { signOut } from "@/server/auth";
 
 /**
- * Ends the session and sends the user back through the entry router, which
- * resolves where a signed-out person with claimed answers belongs — rather
- * than this action deciding that for itself and getting it wrong.
+ * Ends the session and goes to the sign-in form.
+ *
+ * Not "/" — the entry router would resolve a signed-out visitor with no
+ * onboarding cookie to the intro screen, so signing out would hand somebody
+ * who already has an account the ten questions again. `?returning=1` is the
+ * same escape hatch the "Already have an account?" link uses.
  */
 export async function signOutAction(): Promise<void> {
   await signOut();
-  redirect("/");
+  redirect("/signin?returning=1");
 }

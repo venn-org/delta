@@ -70,7 +70,17 @@ export async function resolvePosition(): Promise<Position> {
       .eq("id", user.id)
       .single();
 
-    if (profile?.status !== "onboarding") {
+    // No row, or a read that failed, means onboarding — not the app. The
+    // trigger creates the profile at signup so this should be unreachable,
+    // but the two failure directions are not equally bad: sending a confused
+    // user back through the questions costs them a minute, while letting one
+    // through to the app on a failed read is the mistake this function
+    // exists to prevent.
+    if (!profile) {
+      return { stage: "onboarding", path: resumePath };
+    }
+
+    if (profile.status !== "onboarding") {
       return { stage: "app", path: "/matches" };
     }
     return { stage: "onboarding", path: resumePath };
