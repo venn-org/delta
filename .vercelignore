@@ -1,0 +1,20 @@
+# Everything here is repo material that no build step reads. Keeping it out of
+# the upload makes deploys smaller and, more usefully, means the design files
+# and the SQL are not sitting on a web host.
+
+# 33 design HTML files. Source of truth for the UI, read by humans, never
+# imported by the app.
+design_elements/
+
+# Migrations, seeds and the pgTAP suite. Applied with the Supabase CLI from a
+# developer machine or CI, never from a Vercel build.
+supabase/
+
+# Specs, architecture notes, the handoff.
+docs/
+
+# Agent and editor config.
+.claude/
+AGENTS.md
+
+.github/

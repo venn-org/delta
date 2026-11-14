@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Venn — `app.vennflat.site`
 
-## Getting Started
+Flatmate matching for Mumbai. Eleven questions in a chat, then a ranked list
+of people whose habits actually fit yours.
 
-First, run the development server:
+This repo is the **app only**. The marketing site is a separate project.
+
+- `docs/ARCHITECTURE.md` — how it works and why. Read this first.
+- `docs/HANDOFF.md` — design tokens, components, screen-to-design mapping.
+- `design_elements/*.dc.html` — the designs, source of truth for every screen.
+- `AGENTS.md` — read before writing code. This is Next.js 16; it is not the
+  Next.js you remember.
+
+## Running it
+
+You need Node 22+ and Docker (for the local Supabase stack).
 
 ```bash
+npm ci
+cp .env.example .env.local      # then fill it in
+npx supabase start              # prints the URL and keys for .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open <http://localhost:3000>.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+There is no email or Google sign-in locally unless you configure it. Instead,
+with `ENABLE_DEV_LOGIN=true` in `.env.local`:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| URL | What it does |
+|---|---|
+| `/dev/login` | Signs in as a dummy user with onboarding finished |
+| `/dev/login?state=onboarding` | Signs in mid-onboarding |
+| `/dev/login?out=1` | Signs out |
 
-## Learn More
+`/dev/login` is a complete authentication bypass. It 404s unless
+`ENABLE_DEV_LOGIN=true` **and** the build is not a production build. Never set
+it on a deployment.
 
-To learn more about Next.js, take a look at the following resources:
+## Scripts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Command | |
+|---|---|
+| `npm run dev` | Dev server (Turbopack) |
+| `npm run build` | Production build |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm run lint` | ESLint |
+| `npm run db:reset` | Replay every migration into an empty local database |
+| `npm run db:test` | pgTAP suite — the RLS tests |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+CI runs all of these on every pull request (`.github/workflows/ci.yml`).
 
-## Deploy on Vercel
+## Routes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Parentheses in `app/` are route groups and add no path segment, so
+`app/(app)/(tabs)/matches/page.tsx` serves at `/matches`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Path | |
+|---|---|
+| `/` | Entry router — resolves to onboarding, sign-in or the app |
+| `/onboarding`, `/onboarding/chat` | The eleven questions |
+| `/signin`, `/verify` | Email code |
+| `/finding` | The pause while matches compute |
+| `/matches`, `/matches/[id]` | The list, and one match |
+| `/chats`, `/profile` | The other two tabs |
+| `/unlock` | Paywall |
+| `/kit` | Component gallery. 404s in a production build. |
+
+## Deploying
+
+See `docs/DEPLOYMENT.md`.
+
+## Two rules that are not style preferences
+
+**RLS is the authorization boundary.** Not `proxy.ts`, not the route guards.
+Those are redirect conveniences. Every table has row-level security and the
+pgTAP suite is what proves it.
+
+**The service-role key bypasses RLS and is read in exactly one file**
+(`lib/supabase/admin.ts`). ESLint blocks importing it from `app/**` and
+`components/**`. If you need it, the logic belongs in `server/<domain>/`.

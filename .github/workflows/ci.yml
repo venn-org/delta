@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A second push to the same branch cancels the first. Nothing here is a
+# deployment, so an in-flight run on an old commit is only burning minutes.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    name: Typecheck · lint · build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      # `next build` imports every route module, and a route that reads env at
+      # module scope would throw on a missing key. These are placeholders of
+      # the right SHAPE, not credentials: no route connects to Supabase during
+      # a build, because every page that reads data is dynamic. A real key here
+      # would be a secret in a log for no benefit.
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54421
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
+          SUPABASE_SERVICE_ROLE_KEY: ci-placeholder-service-role-key
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000
+          CRON_SECRET: ci-placeholder-cron-secret
+
+  database:
+    name: Migrations · RLS tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      # Replays every migration from an empty database. This is the check that
+      # catches a migration which only works as a patch on somebody's local
+      # state — the failure mode that makes `db push --remote` dangerous.
+      - name: Start the stack
+        run: supabase start
+
+      # The authorization boundary is RLS, so these tests ARE the security
+      # tests (docs/ARCHITECTURE.md §3.2). A green web job with a red one here
+      # means the app compiles and leaks.
+      - name: pgTAP
+        run: supabase test db
+
+      - name: Stop the stack
+        if: always()
+        run: supabase stop
