@@ -11,7 +11,7 @@ import { AnswerInput } from "./AnswerInput";
 import { FlatDetailsForm, type FlatDraft } from "./FlatDetailsForm";
 import { describeAnswer } from "@/lib/answers";
 import type { AnswerValue, Question } from "@/lib/answers";
-import { saveFlatDetails, startOver, submitAnswer } from "@/app/app/chat/actions";
+import { saveFlatDetails, startOver, submitAnswer } from "@/app/(app)/onboarding/chat/actions";
 
 const TYPING_MS = 700;
 
@@ -100,7 +100,7 @@ export function ChatFlow({
       const q = questions[i];
       if (!q) {
         setStage("finishing");
-        router.push("/app/signup");
+        router.push("/signin");
         return;
       }
       setStage("typing");
