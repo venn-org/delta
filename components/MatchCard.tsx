@@ -24,6 +24,19 @@ function LockIcon() {
 }
 
 /**
+ * Position in the list. `rank` comes from match_results, so it is the
+ * scorer's ordering rather than the array index — a card that gets filtered
+ * out of the response cannot silently renumber the ones after it.
+ */
+function Rank({ rank }: { rank: number }) {
+  return (
+    <span className="flex-none font-mono text-[11px] font-normal tracking-[0.12em] text-slate uppercase">
+      #{rank}
+    </span>
+  );
+}
+
+/**
  * Match card, locked and unlocked.
  *
  * The locked variant is NOT the unlocked one with a blur on top. The server
@@ -34,6 +47,7 @@ function LockIcon() {
 export function MatchCard({ match }: { match: MatchListItem }) {
   const {
     candidateId,
+    rank,
     score,
     isLocked,
     areaName,
@@ -53,18 +67,22 @@ export function MatchCard({ match }: { match: MatchListItem }) {
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           {isLocked ? (
             <>
-              {/* A neutral bar, not obscured text — no name was ever sent. */}
-              <span
-                aria-hidden="true"
-                className="h-[15px] w-28 rounded-pill bg-mist"
-              />
+              <span className="flex items-center gap-2">
+                <Rank rank={rank} />
+                {/* A neutral bar, not obscured text — no name was ever sent. */}
+                <span
+                  aria-hidden="true"
+                  className="h-[15px] w-24 rounded-pill bg-mist"
+                />
+              </span>
               <span className="mt-1 text-[13px] text-slate">
                 {areaName ?? "Nearby"}
               </span>
             </>
           ) : (
             <>
-              <span className="flex items-center gap-1.5 truncate text-[17px] font-bold text-ink">
+              <span className="flex items-center gap-2 truncate text-[17px] font-bold text-ink">
+                <Rank rank={rank} />
                 {displayName}
                 {age != null && `, ${age}`}
                 {isVerified && <VerifiedBadge />}
