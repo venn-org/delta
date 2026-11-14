@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import type { Database } from "@/lib/database.types";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 
 /**
  * Server client — anon key + the user's session cookie, RLS ENFORCED.
@@ -10,6 +11,12 @@ import { cookies } from "next/headers";
  * fails closed rather than leaking.
  */
 export async function createClient() {
+  // Supabase's auth client checks token expiry against the current time, which
+  // Cache Components treats as an unstable value during prerender. Marking the
+  // read as request-time here means every caller gets that for free, rather
+  // than each route having to remember it.
+  await connection();
+
   const cookieStore = await cookies();
 
   return createServerClient<Database>(
@@ -27,7 +34,7 @@ export async function createClient() {
             );
           } catch {
             // Called from a Server Component, where cookies are read-only.
-            // Middleware refreshes the session, so this is safe to swallow.
+            // proxy.ts refreshes the session, so this is safe to swallow.
           }
         },
       },

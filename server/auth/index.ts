@@ -3,11 +3,7 @@ import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { claimSession } from "@/server/onboarding";
 import type { ClaimOutcome } from "@/server/onboarding";
-import {
-  clearPendingSignIn,
-  getPendingSignIn,
-  setPendingSignIn,
-} from "./pending";
+import { clearPendingSignIn, setPendingSignIn } from "./pending";
 
 /**
  * The auth domain's public interface (§3.1).
@@ -21,6 +17,7 @@ import {
  * establish who someone is.
  */
 
+export { requireUser, requireUnclaimed } from "./guards";
 export { getPendingSignIn, clearPendingSignIn } from "./pending";
 export type { PendingSignIn } from "./pending";
 
