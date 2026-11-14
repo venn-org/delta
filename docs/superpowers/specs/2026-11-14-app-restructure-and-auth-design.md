@@ -1,6 +1,6 @@
 # Design — app-only restructure and auth
 
-Date: 2026-11-14 · Status: **Proposed, awaiting approval**
+Date: 2026-11-14 · Status: **Implemented**, except where §10 says otherwise
 Companions: [HANDOFF.md](../../HANDOFF.md) (frontend contract), [ARCHITECTURE.md](../../ARCHITECTURE.md) (backend; §3.2, §4.3, §6.5, ADR-004 and ADR-008 are load-bearing here)
 
 ---
@@ -258,3 +258,71 @@ In `supabase/config.toml`:
 - Test shape. There is pgTAP (`supabase/tests/rls_test.sql`) and no JS test
   runner. Adding one is in scope only if the builder judges it cheap; the claim
   idempotency case is the one worth covering and is testable in pgTAP today.
+
+---
+
+## 10. Decisions made during the build
+
+A review pass raised nine questions against §1–9. These are the answers, and
+the three that are not mine to make.
+
+### 10.1 Settled while building
+
+- **The phone frame does not wrap everything.** §7 said "the shell applies
+  everywhere", which would have changed how `/kit` looks. The screens live in
+  an `app/(app)/` route group with the frame on its layout; `/kit` and the root
+  `not-found` sit outside it. A route group adds no path segment, so the URLs
+  are unaffected.
+- **`/` keeps the "finished the chat, no account" case.** §7.1 rule 2 would
+  have put someone who answered all ten and bounced off signup back into the
+  chat. The rule is now: answered all → `/signin`, answered some →
+  `/onboarding/chat`.
+- **`/signin` does not bounce people with nothing to claim.** The old
+  `/app/signup` redirected to the chat when there was no session, which against
+  rule 4 would have made `/` and `/signin` redirect into each other. It now
+  changes its copy and offers the chat as a link, which is what anti-goal A3
+  requires.
+- **The A4 recovery path works because the guards are conditional.** §7.2 would
+  have sent a signed-in user away from `/onboarding/chat`, including the one
+  whose claim just failed. `requireUnclaimed()` lets them through while
+  `profiles.status` is still `'onboarding'` — which only
+  `claim_onboarding_session` changes. A failed claim also **leaves the cookie in
+  place**, since it is the only pointer to those answers.
+- **`/finding` stays in the funnel.** `claim_onboarding_session` calls
+  `compute_matches_for` inline and that wait is what the screen is for, so both
+  sign-in paths redirect to `/finding` rather than `/matches`. It is a
+  forwarding placeholder for now; phase 3 fills it in.
+- **The email never travels in the URL.** `/verify` reads it from a short-lived
+  httpOnly cookie (`server/auth/pending.ts`), which also carries the first name
+  so "send another code" works. `/verify` is therefore not deep-linkable: cold
+  arrivals go to `/signin`.
+- **The admin client stays inside the onboarding domain.** `claimSession()`
+  lives in `server/onboarding/` and is exported from its `index.ts`;
+  `server/auth/` calls that rather than importing `lib/supabase/admin` itself
+  (§3.1). The `no-restricted-imports` ESLint rule §3.2 asks for is still not
+  written — out of scope here.
+- **A custom email template was needed.** Supabase's default magic-link
+  template never renders `{{ .Token }}`, so the six-digit code the `/verify`
+  screen asks for was not in the email at all.
+  `supabase/templates/magic_link.html` leads with the code and keeps the link
+  as a fallback.
+- **`await connection()` moved into `lib/supabase/server.ts`.** Supabase's auth
+  client compares token expiry against the current time, which Cache Components
+  rejects as an unstable value during prerender. Putting it in the client
+  itself means every route gets it without having to remember.
+
+### 10.2 Not mine to answer
+
+- **Google OAuth is wired but unverified.** It needs a Google Cloud OAuth
+  client; `config.toml` and `.env.example` read the pair from the environment.
+  Whoever holds that account has to create it, and the hosted Supabase project
+  needs the same pair set in its dashboard.
+- **Email OTP above two sends an hour needs SMTP.** `[auth.rate_limit]
+  email_sent = 2` applies until custom SMTP is configured. Local development
+  uses the bundled mail catcher and is unaffected; production needs a Resend
+  account with a verified sending domain, or the resend-code button is of
+  little use.
+- **Vercel preview deployments cannot complete Google sign-in.** Supabase wants
+  *exact* redirect URLs and previews get a per-deploy hostname. A stable branch
+  alias would have to be registered in `additional_redirect_urls`. Email OTP is
+  unaffected.

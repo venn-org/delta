@@ -256,6 +256,13 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
+# The app asks for a six-digit code on /verify, and the default template only
+# sends a clickable link — {{ .Token }} never appears in it. This template
+# leads with the code and keeps the link as a fallback.
+[auth.email.template.magic_link]
+subject = "Your Venn code"
+content_path = "./supabase/templates/magic_link.html"
+
 # Uncomment to customize email template
 # [auth.email.template.invite]
 # subject = "You have been invited"
