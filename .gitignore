@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ...but the template of required variables is documentation, not a secret.
+# Without this negation the `.env*` rule above swallows it and a fresh clone
+# has no record of what the app needs to run.
+!.env.example
