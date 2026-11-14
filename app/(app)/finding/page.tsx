@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { requireUser } from "@/server/auth";
+import { resolvePosition } from "@/server/auth";
 
 /**
  * /finding — Finding.dc.html. PLACEHOLDER.
@@ -9,12 +9,16 @@ import { requireUser } from "@/server/auth";
  * cover. Sign-in redirects here rather than to /matches so the contract is
  * right from the start and phase 3 only has to fill the screen in.
  *
- * Until then it forwards. The merging-circles animation and the real
- * match_jobs polling are phase 3.
+ * Until then it is a pass-through, so it forwards to wherever the person
+ * actually belongs rather than assuming /matches — someone arriving here
+ * whose claim silently failed would otherwise land on a match list they
+ * should not see.
+ *
+ * The screen itself already exists as <FindingScreen>; phase 3 renders it
+ * here with real match_jobs polling behind it.
  */
 export const instant = false;
 
 export default async function FindingPage() {
-  await requireUser();
-  redirect("/matches");
+  redirect((await resolvePosition()).path);
 }

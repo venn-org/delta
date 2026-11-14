@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { validateAnswer } from "@/lib/answers";
 import type { AnswerValue } from "@/lib/answers";
 import type { FlatDraft } from "@/lib/flat";
+import { createClient } from "@/lib/supabase/server";
+import { claimSession } from "@/server/onboarding";
 import { loadQuestions } from "@/server/onboarding/questions";
 import {
   clearSession,
@@ -12,6 +14,38 @@ import {
   setFlatDraft,
   setRole,
 } from "@/server/onboarding/session";
+
+/**
+ * Where the chat goes when the last question is answered.
+ *
+ * Decided on the server, because the answer depends on whether they are
+ * already signed in — and the client cannot be trusted to know:
+ *
+ *  - **Signed out.** The normal path: on to /signin to save the answers.
+ *  - **Signed in.** Someone whose claim failed earlier and was sent back to
+ *    re-answer. Pushing them to /signin would bounce them to /matches, which
+ *    would send them back to the chat, forever. So the claim runs here
+ *    instead, which is the thing that was missing in the first place.
+ *
+ * If the claim fails again the session is dropped, because the only way it
+ * fails for a signed-in user with fresh answers is a session already claimed
+ * by somebody else — and a cookie pointing at that is worse than no cookie.
+ * Starting clean terminates; retrying the same session would not.
+ */
+export async function finishOnboarding(): Promise<string> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return "/signin";
+
+  const outcome = await claimSession(user.id);
+  if (outcome.ok) return "/finding";
+
+  await clearSession();
+  return "/onboarding";
+}
 
 export type SubmitResult =
   | { ok: true; value: AnswerValue; ack: string | null }

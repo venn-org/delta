@@ -1,6 +1,7 @@
+import Link from "next/link";
 import { BgBlobs } from "@/components/BgBlobs";
 import { ButtonLink } from "@/components/Button";
-import { requireUnclaimed } from "@/server/auth";
+import { requireStage } from "@/server/auth";
 
 /**
  * /onboarding — Main.dc.html. The intro, and where the marketing site sends
@@ -11,7 +12,7 @@ import { requireUnclaimed } from "@/server/auth";
 export const instant = false;
 
 export default async function OnboardingIntro() {
-  await requireUnclaimed();
+  await requireStage("onboarding");
 
   return <Intro />;
 }
@@ -51,6 +52,22 @@ function Intro() {
         </ButtonLink>
         <p className="text-center text-[13px] text-slate">
           Takes about two minutes. No sign-up yet.
+        </p>
+
+        {/*
+          The way back in for someone who already has an account. Without it
+          this screen is a dead end for them: every route sends a signed-out
+          visitor with no answers here, so ?returning=1 is the only door to
+          the sign-in form.
+        */}
+        <p className="text-center text-[13px] text-slate">
+          Already have an account?{" "}
+          <Link
+            href="/signin?returning=1"
+            className="text-blue underline-offset-2 hover:underline"
+          >
+            Sign in
+          </Link>
         </p>
       </div>
     </div>

@@ -171,6 +171,39 @@
   }
 }
 
+/* The finding screen: two circles drifting together into a venn overlap. */
+@keyframes venn-merge-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+@keyframes venn-merge-left {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(26px);
+  }
+}
+
+@keyframes venn-merge-right {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-26px);
+  }
+}
+
 @keyframes venn-shine {
   0%,
   100% {
@@ -221,6 +254,19 @@
   }
   .venn-blob-b {
     animation: venn-drift 16s ease-in-out infinite reverse;
+  }
+
+  /* All three share one 2.4s period so the circles overlap at the moment the
+     pair is at its largest — that beat is the whole image. Slow on purpose:
+     the screen is a pause, and a brisk loop makes it feel like a spinner. */
+  .venn-merge {
+    animation: venn-merge-pulse 3.6s ease-in-out infinite;
+  }
+  .venn-merge-left {
+    animation: venn-merge-left 3.6s ease-in-out infinite;
+  }
+  .venn-merge-right {
+    animation: venn-merge-right 3.6s ease-in-out infinite;
   }
 
   .venn-pulse {

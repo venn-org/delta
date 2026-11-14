@@ -15,7 +15,7 @@ export type VerifyState = { ok: boolean; error?: string };
 export async function submitCode(code: string): Promise<VerifyState> {
   const pending = await getPendingSignIn();
   if (!pending) {
-    redirect("/signin");
+    redirect("/signin?returning=1");
   }
 
   const digits = code.replace(/\D/g, "");
@@ -36,7 +36,7 @@ export async function submitCode(code: string): Promise<VerifyState> {
 export async function resendCode(): Promise<VerifyState> {
   const pending = await getPendingSignIn();
   if (!pending) {
-    redirect("/signin");
+    redirect("/signin?returning=1");
   }
 
   const result = await sendEmailCode(pending.email, pending.firstName);

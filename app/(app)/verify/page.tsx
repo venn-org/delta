@@ -22,8 +22,11 @@ export default async function VerifyPage() {
   } = await supabase.auth.getUser();
   if (user) redirect("/matches");
 
+  // No pending code means they did not come from /signin. Back there — with
+  // ?returning=1, because the plain path would resolve them onward to the
+  // chat and they would never reach the form they were half way through.
   const pending = await getPendingSignIn();
-  if (!pending) redirect("/signin");
+  if (!pending) redirect("/signin?returning=1");
 
   return <VerifyForm email={pending.email} />;
 }

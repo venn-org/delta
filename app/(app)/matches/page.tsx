@@ -1,7 +1,7 @@
 import { BgBlobs } from "@/components/BgBlobs";
 import { VennMark } from "@/components/VennMark";
 import { createClient } from "@/lib/supabase/server";
-import { requireUser } from "@/server/auth";
+import { requireStage } from "@/server/auth";
 
 /**
  * /matches — Results-locked / Results-mobile / No-matches. PLACEHOLDER.
@@ -16,7 +16,10 @@ import { requireUser } from "@/server/auth";
 export const instant = false;
 
 export default async function MatchesPage() {
-  await requireUser();
+  // Not just "is there a user?" — a signed-in person whose answers were never
+  // claimed has no business on a match list, and belongs back in the chat.
+  // The count below needs no user filter: RLS scopes it to them.
+  await requireStage("app");
 
   const supabase = await createClient();
   const { count } = await supabase
