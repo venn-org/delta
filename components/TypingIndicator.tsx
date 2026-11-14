@@ -1,12 +1,9 @@
+import { VennMark } from "./VennMark";
+
 export function TypingIndicator() {
   return (
     <div className="venn-rise flex items-end gap-2">
-      <span
-        aria-hidden="true"
-        className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-ink text-[10px] font-bold text-white"
-      >
-        V
-      </span>
+      <VennMark size={28} inset />
       <div
         role="status"
         aria-label="Venn is typing"

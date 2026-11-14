@@ -39,7 +39,8 @@ function ProfileIcon() {
  * Bottom navigation. Shown on matches, chats and profile only — never during
  * onboarding, finding or checkout.
  *
- * `pb-safe` keeps it clear of the iOS home indicator; without
+ * Bottom padding ADDS the safe-area inset to its own, so the bar keeps real
+ * padding on a desktop where the inset is 0; without
  * viewport-fit=cover in app/layout.tsx that inset resolves to 0 and the bar
  * sits under the gesture area.
  */
@@ -49,7 +50,7 @@ export function TabBar({ unreadChats = false }: { unreadChats?: boolean }) {
   return (
     <nav
       aria-label="Main"
-      className="pb-safe sticky bottom-0 z-40 flex border-t border-mist bg-paper px-3 pt-1.5 pb-[18px]"
+      className="sticky bottom-0 z-40 flex border-t border-mist bg-paper px-3 pt-1.5 pb-[calc(18px+env(safe-area-inset-bottom))]"
     >
       {tabs.map(({ href, label, icon: Icon }) => {
         const active = pathname.startsWith(href);

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/Button";
 import { ChatComposer } from "@/components/ChatComposer";
 import { QuickReplyChips } from "@/components/QuickReplyChips";
+import { RangeSlider } from "@/components/RangeSlider";
 import { ScaleSlider } from "@/components/ScaleSlider";
 import type { AnswerValue, Question } from "@/lib/answers";
 
@@ -156,81 +157,32 @@ function RangeAnswer({
   onAnswer: (v: AnswerValue) => void;
   disabled?: boolean;
 }) {
-  const [min, setMin] = useState("");
-  const [max, setMax] = useState("");
+  // End stops come from the question row, not constants here (migration 0012).
+  const min = question.ordinalMin ?? 5000;
+  const max = question.ordinalMax ?? 50000;
+  const step = 1000;
 
-  const minNum = Number(min);
-  const maxNum = Number(max);
-  const valid =
-    min !== "" && max !== "" && Number.isFinite(minNum) && Number.isFinite(maxNum) && maxNum >= minNum;
+  // Opens on a sensible middle band rather than the full range, so the
+  // answer reflects a choice instead of the default.
+  const [range, setRange] = useState({
+    min: Math.round((min + (max - min) * 0.25) / step) * step,
+    max: Math.round((min + (max - min) * 0.5) / step) * step,
+  });
 
   return (
     <div className="flex flex-col gap-3 px-5 pb-4">
-      <div className="flex items-center gap-2">
-        <RupeeField
-          label="From"
-          value={min}
-          onChange={setMin}
-          placeholder={question.placeholder ?? "18000"}
-          disabled={disabled}
-        />
-        <span className="pt-5 text-slate">–</span>
-        <RupeeField
-          label="Up to"
-          value={max}
-          onChange={setMax}
-          placeholder="22000"
-          disabled={disabled}
-        />
-      </div>
-      {min !== "" && max !== "" && !valid && (
-        <p className="text-[13px] text-danger">
-          The second figure needs to be the larger one.
-        </p>
-      )}
-      <Button
-        block
-        disabled={disabled || !valid}
-        onClick={() => onAnswer({ min: Math.round(minNum), max: Math.round(maxNum) })}
-      >
+      <RangeSlider
+        min={min}
+        max={max}
+        step={step}
+        valueMin={range.min}
+        valueMax={range.max}
+        onChange={setRange}
+        disabled={disabled}
+      />
+      <Button block disabled={disabled} onClick={() => onAnswer(range)}>
         That&apos;s my range
       </Button>
     </div>
-  );
-}
-
-function RupeeField({
-  label,
-  value,
-  onChange,
-  placeholder,
-  disabled,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  placeholder: string;
-  disabled?: boolean;
-}) {
-  return (
-    <label className="flex flex-1 flex-col gap-1">
-      <span className="font-mono text-[11px] tracking-[0.12em] text-slate uppercase">
-        {label}
-      </span>
-      <span className="flex items-center gap-1 rounded-field border-[1.5px] border-mist bg-white px-3 focus-within:border-blue">
-        <span className="text-slate">₹</span>
-        <input
-          // `inputMode` gives phones the numeric keypad without the spinner
-          // and scroll-to-change behaviour of type="number".
-          inputMode="numeric"
-          pattern="[0-9]*"
-          value={value}
-          disabled={disabled}
-          placeholder={placeholder}
-          onChange={(e) => onChange(e.target.value.replace(/[^0-9]/g, ""))}
-          className="w-full bg-transparent py-2.5 text-ink outline-none placeholder:text-slate/60"
-        />
-      </span>
-    </label>
   );
 }
