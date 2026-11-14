@@ -105,8 +105,10 @@ export function BottomSheet({
         className={cn(
           "pb-safe scroll-contain max-h-[85dvh] overflow-y-auto bg-paper px-5 pt-3 pb-6",
           "[border-radius:24px_24px_0_0]",
-          "translate-y-full transition-transform duration-300 ease-[cubic-bezier(.2,.8,.2,1)]",
-          shown && "translate-y-0",
+          "transition-transform duration-300 ease-[cubic-bezier(.2,.8,.2,1)]",
+          // Mutually exclusive: both on the element at once would leave the
+          // winner to stylesheet order rather than to this condition.
+          shown ? "translate-y-0" : "translate-y-full",
           className,
         )}
       >
