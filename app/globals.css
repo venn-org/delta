@@ -104,13 +104,14 @@
     min-height: 100dvh;
   }
 
+
   /* Notch and home-indicator padding; needs viewport-fit=cover in the viewport meta. */
   .pt-safe {
     padding-top: env(safe-area-inset-top);
   }
-  .pb-safe {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
+  /* No .pb-safe: it SET padding-bottom, so it silently replaced a
+     component's own bottom padding and resolved to 0 off-device.
+     Use pb-[calc(<base>+env(safe-area-inset-bottom))] instead. */
 
   /* Stops pull-to-refresh firing when a chat thread is scrolled to the top. */
   .scroll-contain {
@@ -228,6 +229,117 @@
 }
 
 /* ---------------------------------------------------------------------------
+   One screen's worth of height.
+
+   On a phone that is the viewport. Inside the desktop PhoneFrame it is the
+   bezel's inner height instead, so screens size themselves to the frame
+   rather than to the browser window — which is what makes a scroll container
+   inside the frame actually scroll.
+
+   Plain classes rather than @utility: @utility only emits when Tailwind
+   detects the class in scanned source, and in this Turbopack setup it emitted
+   nothing — min-height resolved to 0 and the frame grew to its content. Plain
+   rules in @layer utilities are always written out, so they cannot silently
+   disappear. The desktop variant is a media query below, not a Tailwind
+   variant, for the same reason.
+--------------------------------------------------------------------------- */
+@layer utilities {
+  .screen-h {
+    height: var(--screen-h, 100dvh);
+  }
+
+  .screen-min {
+    min-height: var(--screen-h, 100dvh);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Desktop phone frame
+
+   The bezel is 390x844 at full size, but a 844px screen plus 22px of bezel
+   plus breathing room does not fit a 13" laptop — which is why the frame was
+   touching the top and bottom of the window. The screen height therefore
+   shrinks to fit the viewport, and every screen inside reads --screen-h so
+   it sizes to the frame instead of to the window.
+--------------------------------------------------------------------------- */
+@media (min-width: 861px) {
+  .phone-screen {
+    /* Shrink to fit short laptops instead of overrunning the window. */
+    --screen-h: min(844px, calc(100dvh - 8.5rem));
+    height: var(--screen-h);
+    min-height: 0;
+    width: 390px;
+    overflow: hidden;
+    border-radius: 40px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Dual-handle range slider (budget)
+
+   Two native <input type="range"> stacked on one track. The inputs ignore
+   pointer events so clicks fall through to whichever THUMB is under the
+   cursor — without this the upper input swallows every press and the lower
+   handle becomes unreachable.
+--------------------------------------------------------------------------- */
+.dual-range {
+  -webkit-appearance: none;
+  appearance: none;
+  position: absolute;
+  inset-inline: 0;
+  width: 100%;
+  height: 24px;
+  margin: 0;
+  background: transparent;
+  pointer-events: none;
+}
+
+.dual-range:focus {
+  outline: none;
+}
+
+.dual-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: auto;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #8a5bff;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.15);
+  cursor: grab;
+  transition: transform 0.15s var(--ease-venn);
+}
+
+.dual-range::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.12);
+}
+
+.dual-range:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid #335cff;
+  outline-offset: 2px;
+}
+
+.dual-range::-moz-range-thumb {
+  pointer-events: auto;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #8a5bff;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.15);
+  cursor: grab;
+}
+
+.dual-range::-moz-range-track,
+.dual-range::-webkit-slider-runnable-track {
+  background: transparent;
+  border: none;
+}
+
+/* ---------------------------------------------------------------------------
    Bottom sheet backdrop
    ::backdrop cannot be targeted from a utility class, so it lives here. The
    panel itself slides via Tailwind classes in BottomSheet.tsx.
@@ -254,3 +366,4 @@ dialog.venn-sheet[data-open]::backdrop {
     transition: none !important;
   }
 }
+

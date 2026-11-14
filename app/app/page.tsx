@@ -4,7 +4,7 @@ import { ButtonLink } from "@/components/Button";
 /** /app — Main.dc.html. Placeholder until phase 1 builds the real screen. */
 export default function AppHome() {
   return (
-    <div className="relative flex min-h-dvh-safe flex-col justify-between px-7 pt-16 pb-10">
+    <div className="screen-min relative flex flex-col justify-between px-7 pt-16 pb-10">
       <BgBlobs />
 
       <div className="relative z-10">

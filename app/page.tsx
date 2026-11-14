@@ -1,37 +1,42 @@
-import { ButtonLink } from "@/components/Button";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { getSession } from "@/server/onboarding/session";
+import { loadQuestions } from "@/server/onboarding/questions";
 
 /**
- * / — the marketing site (Website.dc.html). A normal responsive page with no
- * phone frame. Placeholder until that screen is built; every "Try now" links
- * to /app.
+ * / — the entry router.
+ *
+ * The marketing site lives in its own project on the apex domain; this app is
+ * everything behind it. So `/` holds no content of its own, it just works out
+ * where someone belongs:
+ *
+ *   signed in                  → their matches
+ *   finished the chat, no account → save your answers
+ *   mid-chat                   → resume where they left off
+ *   never started              → the intro
+ *
+ * Reads the session cookie, so it blocks on the server rather than
+ * prerendering (see the Cache Components notes on /app/chat).
  */
-export default function Home() {
-  return (
-    <main className="mx-auto flex min-h-dvh-safe max-w-[640px] flex-col justify-center gap-6 px-6 py-20">
-      <div className="flex items-center gap-2">
-        <span aria-hidden="true" className="relative h-7 w-11">
-          <span className="absolute top-0 left-0 h-7 w-7 rounded-full bg-blue opacity-90" />
-          <span className="absolute top-0 right-0 h-7 w-7 rounded-full bg-violet opacity-85" />
-        </span>
-        <span className="font-display text-[28px] font-bold tracking-[-0.03em]">
-          venn
-        </span>
-      </div>
+export const instant = false;
 
-      <h1 className="font-display text-[clamp(34px,7vw,56px)] leading-[1.1] font-bold tracking-[-0.03em] text-ink">
-        Find a flatmate who lives like you.
-      </h1>
-      <p className="max-w-[46ch] text-[17px] leading-relaxed text-slate">
-        Ten questions about how you actually live — sleep, guests, dishes, the
-        things that decide whether a flat works. Then people who match.
-      </p>
+export default async function Index() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-      <div className="flex flex-wrap gap-3">
-        <ButtonLink href="/app">Try now</ButtonLink>
-        <ButtonLink href="/kit" variant="ghost">
-          UI kit
-        </ButtonLink>
-      </div>
-    </main>
-  );
+  if (user) {
+    // Built in phase 4; until then this is the intended destination, not a
+    // reachable one, since nothing signs a user in yet.
+    redirect("/app/matches");
+  }
+
+  const session = await getSession();
+  const answered = session ? Object.keys(session.answers).length : 0;
+
+  if (answered === 0) redirect("/app");
+
+  const questions = await loadQuestions();
+  redirect(answered >= questions.length ? "/app/signup" : "/app/chat");
 }
