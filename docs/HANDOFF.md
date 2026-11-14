@@ -56,6 +56,14 @@ Build a **mobile-first web app** in **Next.js (App Router) + TypeScript + Tailwi
 - `BgBlobs`
 
 ## Routes → design file
+
+> **Stale prefix.** This table predates the app-only restructure. The repo is
+> `app.vennflat.site` and the marketing site lives in its own project, so the
+> `/app` prefix below is gone everywhere: `/app/matches` is `/matches`, `/app`
+> itself is `/`, and `/` here is the other project. The mapping of screen to
+> design file is still correct. See
+> `docs/superpowers/specs/2026-11-14-app-restructure-and-auth-design.md`.
+
 | Route | File |
 |---|---|
 | `/` | Website.dc.html |
