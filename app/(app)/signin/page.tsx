@@ -1,14 +1,20 @@
 import { redirect } from "next/navigation";
-import { SignupForm } from "@/components/auth/SignupForm";
-import { loadQuestions } from "@/server/onboarding/questions";
-import { getSession } from "@/server/onboarding/session";
+import { SignInForm } from "@/components/auth/SignInForm";
+import { createClient } from "@/lib/supabase/server";
+import { getSession, loadQuestions } from "@/server/onboarding";
 
 /**
- * /app/signup — Signup.dc.html.
+ * /signin — Signup.dc.html.
  *
- * Comes immediately after the chat and before the finding screen: answers
- * already exist against the anonymous session and are attached to the new
- * user once they authenticate (§4.3, ADR-004).
+ * Normally reached at the end of the chat: answers already exist against the
+ * anonymous session and get attached to the new user once they authenticate
+ * (§4.3, ADR-004).
+ *
+ * But it is ALSO where a cold visitor to the bare domain lands, with no
+ * session and nothing to claim. That case must work: this screen does not
+ * bounce someone back to the chat for having no answers, it changes its copy
+ * and offers the chat as a link. Bouncing would make `/` and `/signin`
+ * redirect into each other.
  *
  * The design shows phone OTP. v1 ships Google OAuth + email OTP instead
  * (ADR-008), so the copy is the email variant of the same screen; phone
@@ -16,19 +22,32 @@ import { getSession } from "@/server/onboarding/session";
  */
 export const instant = false;
 
-export default async function SignupPage() {
-  const [session, questions] = await Promise.all([
-    getSession(),
-    loadQuestions(),
-  ]);
+export default async function SignInPage({
+  searchParams,
+}: PageProps<"/signin">) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) redirect("/matches");
 
-  // Nothing to save — send them back to answer the questions first.
-  if (!session || Object.keys(session.answers).length === 0) {
-    redirect("/app/chat");
-  }
+  const [session, questions] = await Promise.all([getSession(), loadQuestions()]);
 
-  const answered = Object.keys(session.answers).length;
-  const total = questions.length;
+  const answered = session ? Object.keys(session.answers).length : 0;
 
-  return <SignupForm answered={answered} total={total} />;
+  // /auth/callback sends people back here with ?error=oauth rather than
+  // rendering its own failure page.
+  const { error } = await searchParams;
+
+  return (
+    <SignInForm
+      answered={answered}
+      total={questions.length}
+      initialError={
+        error === "oauth"
+          ? "Google sign-in didn't complete. Try again, or use your email."
+          : null
+      }
+    />
+  );
 }
