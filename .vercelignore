@@ -1,20 +1,26 @@
-# Everything here is repo material that no build step reads. Keeping it out of
-# the upload makes deploys smaller and, more usefully, means the design files
-# and the SQL are not sitting on a web host.
+# Repo material no build step reads. Keeping it out of the upload makes
+# deploys smaller and means the design files and the SQL are not sitting on a
+# web host.
+#
+# EVERY PATTERN IS ANCHORED WITH A LEADING SLASH, and must stay that way.
+# These are gitignore patterns: a bare `supabase/` matches a directory of that
+# name at ANY depth, which silently excludes `lib/supabase/` — the Supabase
+# clients the whole app imports — and the build fails with "Module not found"
+# on a file that is right there in the repo.
 
 # 33 design HTML files. Source of truth for the UI, read by humans, never
 # imported by the app.
-design_elements/
+/design_elements/
 
 # Migrations, seeds and the pgTAP suite. Applied with the Supabase CLI from a
 # developer machine or CI, never from a Vercel build.
-supabase/
+/supabase/
 
 # Specs, architecture notes, the handoff.
-docs/
+/docs/
 
 # Agent and editor config.
-.claude/
-AGENTS.md
+/.claude/
+/AGENTS.md
 
-.github/
+/.github/
