@@ -1,10 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { BgBlobs } from "@/components/BgBlobs";
 import { Button } from "@/components/Button";
 import { VennMark } from "@/components/VennMark";
+import {
+  beginGoogleSignIn,
+  requestEmailCode,
+} from "@/app/(app)/signin/actions";
 
 function GoogleIcon() {
   return (
@@ -18,25 +22,32 @@ function GoogleIcon() {
 }
 
 /**
- * Save-your-answers screen.
+ * Save-your-answers screen — and the plain sign-in screen.
  *
  * Two independent paths on purpose (ADR-008): if email delivery fails, Google
- * still gets someone in. Neither is wired to Supabase Auth yet — that is the
- * next slice, along with claim_onboarding_session().
+ * still gets someone in.
+ *
+ * `answered === 0` means this is somebody who arrived at the bare domain
+ * rather than someone finishing the chat. The screen still works: it drops the
+ * "save your answers" framing and points at the chat instead.
  */
-export function SignupForm({
+export function SignInForm({
   answered,
   total,
+  initialError = null,
 }: {
   answered: number;
   total: number;
+  initialError?: string | null;
 }) {
   const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
-  const [notice, setNotice] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(initialError);
+  const [pending, startTransition] = useTransition();
 
+  const hasAnswers = answered > 0;
   const emailLooksValid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim());
-  const canSend = firstName.trim().length > 0 && emailLooksValid;
+  const canSend = firstName.trim().length > 0 && emailLooksValid && !pending;
 
   return (
     <div className="screen-h scroll-contain relative flex flex-col overflow-y-auto px-7 pt-12 pb-10">
@@ -45,14 +56,23 @@ export function SignupForm({
       <div className="relative z-10 flex flex-1 flex-col">
         <VennMark size={40} />
 
-        <p className="mt-6 font-mono text-[11px] tracking-[0.12em] text-indigo uppercase">
-          {answered >= total
-            ? `// That's all ${total} questions ✓`
-            : `// ${answered} of ${total} answered`}
-        </p>
+        {hasAnswers ? (
+          <p className="mt-6 font-mono text-[11px] tracking-[0.12em] text-indigo uppercase">
+            {answered >= total
+              ? `// That's all ${total} questions ✓`
+              : `// ${answered} of ${total} answered`}
+          </p>
+        ) : (
+          <p className="mt-6 font-mono text-[11px] tracking-[0.12em] text-indigo uppercase">
+            {/* eslint-disable-next-line react/jsx-no-comment-textnodes */}
+            // Welcome back
+          </p>
+        )}
 
         <h1 className="mt-3 font-display text-[28px] leading-[1.15] font-bold tracking-[-0.03em] text-ink">
-          Nice! Save your answers and we&apos;ll find your matches.
+          {hasAnswers
+            ? "Nice! Save your answers and we'll find your matches."
+            : "Sign in to pick up where you left off."}
         </h1>
         <p className="mt-3 text-[15px] leading-relaxed text-slate">
           We&apos;ll email you a code. Your email is never shown to matches.
@@ -62,9 +82,12 @@ export function SignupForm({
           className="mt-7 flex flex-col gap-3"
           onSubmit={(e) => {
             e.preventDefault();
-            setNotice(
-              "Email sign-in isn't wired up yet — that's the next step.",
-            );
+            setError(null);
+            startTransition(async () => {
+              const result = await requestEmailCode(firstName, email);
+              // A success redirects, so reaching here at all means it failed.
+              if (result && !result.ok) setError(result.error ?? null);
+            });
           }}
         >
           <Field label="First name">
@@ -90,7 +113,7 @@ export function SignupForm({
           </Field>
 
           <Button type="submit" block disabled={!canSend} className="mt-1">
-            Send code
+            {pending ? "Sending…" : "Send code"}
           </Button>
         </form>
 
@@ -105,17 +128,35 @@ export function SignupForm({
         <Button
           variant="ghost"
           block
+          disabled={pending}
           onClick={() =>
-            setNotice("Google sign-in isn't wired up yet — that's the next step.")
+            startTransition(async () => {
+              setError(null);
+              const result = await beginGoogleSignIn();
+              if (result && !result.ok) setError(result.error ?? null);
+            })
           }
         >
           <GoogleIcon />
           Continue with Google
         </Button>
 
-        {notice && (
-          <p role="status" className="mt-4 text-[13px] text-friction">
-            {notice}
+        {error && (
+          <p role="alert" className="mt-4 text-[13px] text-friction">
+            {error}
+          </p>
+        )}
+
+        {!hasAnswers && (
+          <p className="mt-6 text-center text-[13px] leading-relaxed text-slate">
+            First time here?{" "}
+            <Link
+              href="/onboarding"
+              className="text-blue underline-offset-2 hover:underline"
+            >
+              Answer the questions
+            </Link>{" "}
+            — it takes about two minutes.
           </p>
         )}
 

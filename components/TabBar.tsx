@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
 
 const tabs = [
-  { href: "/app/chats", label: "Chats", icon: ChatsIcon },
-  { href: "/app/matches", label: "Matched", icon: MatchedIcon },
-  { href: "/app/profile", label: "Profile", icon: ProfileIcon },
+  { href: "/chats", label: "Chats", icon: ChatsIcon },
+  { href: "/matches", label: "Matched", icon: MatchedIcon },
+  { href: "/profile", label: "Profile", icon: ProfileIcon },
 ] as const;
 
 function ChatsIcon() {

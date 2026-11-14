@@ -108,7 +108,7 @@ export function MatchCard({ match }: { match: MatchListItem }) {
   return (
     <article className="venn-rise">
       <Link
-        href={isLocked ? "/app/unlock" : `/app/matches/${candidateId}`}
+        href={isLocked ? "/unlock" : `/matches/${candidateId}`}
         className={classes}
       >
         {body}
