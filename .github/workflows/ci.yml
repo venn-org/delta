@@ -15,6 +15,18 @@ jobs:
   web:
     name: Typecheck · lint · build
     runs-on: ubuntu-latest
+
+    # Placeholders of the right SHAPE, not credentials. No route connects to
+    # Supabase during a build or a typegen, because every page that reads data
+    # is dynamic — so a real key here would be a secret in a log for no
+    # benefit. Set at job level so every step has them, not just the build.
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54421
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
+      SUPABASE_SERVICE_ROLE_KEY: ci-placeholder-service-role-key
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      CRON_SECRET: ci-placeholder-cron-secret
+
     steps:
       - uses: actions/checkout@v5
 
@@ -25,25 +37,17 @@ jobs:
 
       - run: npm ci
 
+      # Runs `next typegen` first. LayoutProps and PageProps are GENERATED
+      # into .next/types, which is gitignored, so a bare `tsc --noEmit` on a
+      # fresh checkout cannot see them and fails on every layout in the app.
       - name: Typecheck
         run: npm run typecheck
 
       - name: Lint
         run: npm run lint
 
-      # `next build` imports every route module, and a route that reads env at
-      # module scope would throw on a missing key. These are placeholders of
-      # the right SHAPE, not credentials: no route connects to Supabase during
-      # a build, because every page that reads data is dynamic. A real key here
-      # would be a secret in a log for no benefit.
       - name: Build
         run: npm run build
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54421
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
-          SUPABASE_SERVICE_ROLE_KEY: ci-placeholder-service-role-key
-          NEXT_PUBLIC_SITE_URL: http://localhost:3000
-          CRON_SECRET: ci-placeholder-cron-secret
 
   database:
     name: Migrations · RLS tests
