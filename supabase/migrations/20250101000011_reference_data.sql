@@ -12,10 +12,14 @@
 -- =============================================================================
 
 insert into areas (city, name, slug, is_live) values
-  ('Mumbai', 'Powai',         'powai',       true),
-  ('Mumbai', 'Andheri West',  'andheri-w',   true),
-  ('Mumbai', 'Vile Parle',    'vile-parle',  true),
-  ('Mumbai', 'Lower Parel',   'lower-parel', true),
+  ('Mumbai',    'Mumbai',    'mumbai',    true),
+  ('Delhi',     'Delhi',     'delhi',     true),
+  ('Bangalore', 'Bangalore', 'bangalore', true),
+  ('Hyderabad', 'Hyderabad', 'hyderabad', true),
+  ('Mumbai', 'Powai',         'powai',       false),
+  ('Mumbai', 'Andheri West',  'andheri-w',   false),
+  ('Mumbai', 'Vile Parle',    'vile-parle',  false),
+  ('Mumbai', 'Lower Parel',   'lower-parel', false),
   ('Mumbai', 'Bandra West',   'bandra-w',    false),
   ('Mumbai', 'Goregaon East', 'goregaon-e',  false)
 on conflict (slug) do nothing;
@@ -88,7 +92,7 @@ insert into questions (
  'Got it. Better to agree on the vibe early than find out on a Friday night.', null),
 
 ('cooking', 5,
- 'Do you cook, or is Swiggy your flatmate already?', null, 'single_choice',
+ 'Do you cook, or is it mostly ordering in late at night?', null, 'single_choice',
  '[{"value":"daily","label":"Most days","match_label":"Both cook daily","friction_label":"Cooks most days"},
    {"value":"weekends","label":"Weekends","match_label":"Both weekend cooks"},
    {"value":"rarely","label":"Barely","match_label":"Neither really cooks"}]',
@@ -118,10 +122,10 @@ insert into questions (
  'Perfect. I''ll only show you people whose budget actually overlaps yours.', 'e.g. 18000'),
 
 ('locality', 9,
- 'Where do you want to live?', 'Pick as many as work for you.',
+ 'Which city are you looking in?', 'Pick as many as work for you.',
  'area_multi', null, 'set_overlap', null, null, 1.5, false,
- 'Same areas', null, '{seeker,haver}',
- 'Great. I''ll include nearby areas that are an easy commute too.', null),
+ 'Same city', null, '{seeker,haver}',
+ 'Great. I''ll keep your matches to where you actually want to live.', null),
 
 ('pets', 10,
  'Pets?', null, 'single_choice',
