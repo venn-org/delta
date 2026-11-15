@@ -99,7 +99,7 @@ export function SignInForm({
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               autoComplete="given-name"
-              placeholder="Aarav"
+              placeholder="What should we call you?"
               className="w-full rounded-field border-[1.5px] border-mist bg-white px-3.5 py-3 text-ink outline-none placeholder:text-slate/60 focus:border-blue"
             />
           </Field>
