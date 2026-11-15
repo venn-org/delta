@@ -323,11 +323,46 @@ export function ChatFlow({
           {stage === "typing" && <TypingIndicator />}
 
           {stage === "resume" && (
-            <ChatBubble from="bot">
-              Welcome back! You&apos;re {answeredKeys.length} question
-              {answeredKeys.length === 1 ? "" : "s"} in. Pick up where we left
-              off?
-            </ChatBubble>
+            <>
+              <ChatBubble from="bot">
+                Welcome back! You&apos;re {answeredKeys.length} question
+                {answeredKeys.length === 1 ? "" : "s"} in. Pick up where we left
+                off?
+              </ChatBubble>
+              <QuickReplyChips
+                className="justify-end pt-1"
+                options={[
+                  { value: "continue", label: "Yes, continue" },
+                  { value: "restart", label: "Start over" },
+                ]}
+                selected={null}
+                onSelect={(v) => {
+                  if (v === "continue") {
+                    resumeChat();
+                  } else {
+                    void startOver().then(() => window.location.reload());
+                  }
+                }}
+              />
+            </>
+          )}
+
+          {/*
+            The answer controls live INSIDE the thread, right-aligned, on the
+            same side as the user's own bubbles — so choosing a reply reads as
+            the next turn in the conversation rather than as operating a
+            toolbar bolted to the bottom of the screen.
+
+            Free text is the exception and stays pinned below: it is a
+            keyboard-attached text field, and on a phone the keyboard pins it
+            there anyway.
+          */}
+          {stage === "awaiting" && current && current.answerKind !== "free_text" && (
+            <AnswerInput
+              key={current.key}
+              question={current}
+              onAnswer={(v) => void handleAnswer(v)}
+            />
           )}
         </div>
 
@@ -340,31 +375,17 @@ export function ChatFlow({
         <div className="h-2" />
       </div>
 
-      <div className="bg-canvas">
-        {stage === "resume" && (
-          <div className="px-5 pb-4">
-            <QuickReplyChips
-              options={[
-                { value: "continue", label: "Yes, continue" },
-                { value: "restart", label: "Start over" },
-              ]}
-              selected={null}
-              onSelect={(v) => {
-                if (v === "continue") {
-                  resumeChat();
-                } else {
-                  void startOver().then(() => window.location.reload());
-                }
-              }}
-            />
-          </div>
-        )}
-
+      {/*
+        What is left down here is only what genuinely belongs pinned: the flat
+        form (a multi-field form, not a reply) and the free-text composer.
+        Everything else now flows with the thread above.
+      */}
+      <div className="bg-canvas empty:hidden">
         {stage === "flat" && (
           <FlatDetailsForm areas={areas} onDone={handleFlatDone} />
         )}
 
-        {stage === "awaiting" && current && (
+        {stage === "awaiting" && current?.answerKind === "free_text" && (
           <AnswerInput
             key={current.key}
             question={current}
@@ -377,8 +398,11 @@ export function ChatFlow({
 }
 
 function Header({ current, total }: { current: number; total: number }) {
+  // pt-7, not pt-3: the mark sat hard against the top edge of the frame with
+  // nothing above it. The headspace is what makes the header read as a title
+  // bar rather than as content that got cut off.
   return (
-    <header className="pt-safe sticky top-0 z-30 border-b border-mist bg-paper px-5 pt-3 pb-3">
+    <header className="pt-safe sticky top-0 z-30 border-b border-mist bg-paper px-5 pt-7 pb-3">
       <div className="flex items-center gap-2.5">
         <VennMark size={36} inset />
         <span className="flex flex-col">

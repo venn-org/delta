@@ -56,8 +56,9 @@ function SingleChoice({
   const [picked, setPicked] = useState<string | null>(null);
 
   return (
-    <div className="px-5 pb-4">
+    <div className="pt-1 pb-1">
       <QuickReplyChips
+        className="justify-end"
         options={question.options}
         selected={picked}
         disabled={disabled}
@@ -85,8 +86,9 @@ function MultiChoice({
   const isAreas = question.answerKind === "area_multi";
 
   return (
-    <div className="flex flex-col gap-3 px-5 pb-4">
+    <div className="flex flex-col items-end gap-2.5 pt-1 pb-1">
       <QuickReplyChips
+        className="justify-end"
         multi
         options={question.options}
         selected={picked}
@@ -100,7 +102,6 @@ function MultiChoice({
         }
       />
       <Button
-        block
         disabled={disabled || picked.length === 0}
         onClick={() =>
           onAnswer(isAreas ? { areas: picked } : { choices: picked })
@@ -131,7 +132,10 @@ function ScaleAnswer({
     question.options.find((o) => o.ordinal === n)?.label ?? String(n);
 
   return (
-    <div className="flex flex-col gap-3 px-5 pb-4">
+    // Sliders need real width to be usable, so they cannot shrink-wrap to the
+    // right like a chip. They sit in a right-aligned card the width of a long
+    // bubble instead, which keeps them on the user's side of the thread.
+    <div className="ml-auto flex w-[86%] max-w-[300px] flex-col gap-3 rounded-2xl border border-mist bg-white p-3.5">
       <ScaleSlider
         label={question.prompt.slice(0, 28)}
         value={value}
@@ -141,7 +145,7 @@ function ScaleAnswer({
         endLabels={[labelFor(min), labelFor(max)]}
         valueLabel={labelFor(value)}
       />
-      <Button block disabled={disabled} onClick={() => onAnswer({ value })}>
+      <Button className="self-end" disabled={disabled} onClick={() => onAnswer({ value })}>
         That&apos;s me
       </Button>
     </div>
@@ -170,7 +174,7 @@ function RangeAnswer({
   });
 
   return (
-    <div className="flex flex-col gap-3 px-5 pb-4">
+    <div className="ml-auto flex w-[86%] max-w-[300px] flex-col gap-3 rounded-2xl border border-mist bg-white p-3.5">
       <RangeSlider
         min={min}
         max={max}
@@ -180,7 +184,7 @@ function RangeAnswer({
         onChange={setRange}
         disabled={disabled}
       />
-      <Button block disabled={disabled} onClick={() => onAnswer(range)}>
+      <Button className="self-end" disabled={disabled} onClick={() => onAnswer(range)}>
         That&apos;s my range
       </Button>
     </div>
