@@ -17,13 +17,51 @@ from Supabase → Project Settings → API.
 | Variable | Scope | Value |
 |---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | all | `https://evpnmmkligiqrlmcyxdn.supabase.co` |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | all | the hosted anon key |
-| `SUPABASE_SERVICE_ROLE_KEY` | production, preview | the hosted service-role key |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | all | the hosted **anon / public** key |
+| `SUPABASE_SERVICE_ROLE_KEY` | production, preview | the hosted **service-role** key |
 | `NEXT_PUBLIC_SITE_URL` | production | `https://app.vennflat.site` |
 | `CRON_SECRET` | production | a long random string you generate |
 
 **`ENABLE_DEV_LOGIN` must not exist in any Vercel environment.** It unlocks a
 URL that signs anybody in as a real user without a password.
+
+### `NEXT_PUBLIC_` variables need a REDEPLOY
+
+They are inlined into the bundle at build time, not read when a request comes
+in. Setting one in the dashboard does nothing to the deployment already
+running — there is no restart that picks it up. Change it, then redeploy.
+
+Also check the **environment scope** on each one. A variable set only for
+Production is absent from Preview builds, and a preview that builds without it
+is a preview that cannot talk to the database.
+
+Since `lib/env.ts` throws when either is missing, a build without them now
+**fails loudly** instead of deploying and returning `Invalid API key` on the
+first query.
+
+### Do not confuse the two keys
+
+Supabase's API settings page shows both on one screen, a few centimetres
+apart. They are not interchangeable:
+
+| | Bypasses RLS | Shipped to the browser |
+|---|---|---|
+| anon / publishable | no | **yes**, by design |
+| service-role / secret | **yes** | must never be |
+
+A deployment of this app once went out with the **local stack's service-role
+key** in `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Supabase returned
+`401 UNAUTHORIZED_INVALID_API_KEY` on everything, which is accurate and says
+nothing about which mistake was made. Two were:
+
+- **wrong project** — the local stack signs with a published demo secret and
+  `iss: "supabase-demo"`, so its keys authenticate nowhere but localhost;
+- **wrong role** — `service_role` in a `NEXT_PUBLIC_` variable. It was the
+  harmless local copy. The hosted one in that slot would have published an
+  RLS-bypassing credential to every visitor.
+
+`lib/env.ts` now refuses to build on either, so this specific afternoon
+cannot happen twice.
 
 `SUPABASE_AUTH_EXTERNAL_GOOGLE_*` are **not** app variables. The local
 Supabase stack reads them from `.env.local`; the hosted project takes the same
