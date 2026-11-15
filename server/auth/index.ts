@@ -1,5 +1,6 @@
 import "server-only";
 import { headers } from "next/headers";
+import { SITE_URL } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import { claimSession } from "@/server/onboarding";
 import type { ClaimOutcome } from "@/server/onboarding";
@@ -22,8 +23,23 @@ export type { Stage, Position } from "./guards";
 export { getPendingSignIn, clearPendingSignIn } from "./pending";
 export type { PendingSignIn } from "./pending";
 
-/** Where OAuth comes back to. Derived from the request, never hardcoded. */
+/**
+ * Where OAuth comes back to.
+ *
+ * NEXT_PUBLIC_SITE_URL wins when it is set, because Supabase only honours a
+ * `redirectTo` that is on the project's redirect allow-list — anything else is
+ * replaced with the project's Site URL, with no error (see lib/env.ts). The
+ * request's own host cannot be allow-listed on a preview deployment, where it
+ * is a different name on every commit.
+ *
+ * The request-derived fallback is for local development, where the port moves
+ * around and nothing is configured. `x-forwarded-proto` is set by every
+ * platform that terminates TLS, so defaulting to `http` only ever applies on
+ * a machine that is not behind one.
+ */
 async function origin(): Promise<string> {
+  if (SITE_URL) return SITE_URL;
+
   const h = await headers();
   const forwardedHost = h.get("x-forwarded-host") ?? h.get("host");
   const proto = h.get("x-forwarded-proto") ?? "http";

@@ -20,6 +20,7 @@ from Supabase → Project Settings → API.
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | all | the hosted **anon / public** key |
 | `SUPABASE_SERVICE_ROLE_KEY` | production, preview | the hosted **service-role** key |
 | `NEXT_PUBLIC_SITE_URL` | production | `https://app.vennflat.site` |
+| `NEXT_PUBLIC_SITE_URL` | preview | the **stable branch alias**, e.g. `https://delta-git-development.vercel.app` |
 | `CRON_SECRET` | production | a long random string you generate |
 
 **`ENABLE_DEV_LOGIN` must not exist in any Vercel environment.** It unlocks a
@@ -83,6 +84,30 @@ Three ways out, in the order I'd pick them:
    bypass on a public host.
 
 ## 2. Supabase auth settings
+
+### If Google sends you to localhost:3000
+
+That is the symptom of a `redirectTo` that failed the allow-list. Supabase
+does not error on an unlisted `redirectTo` — it **discards it and substitutes
+the project Site URL**, which on a fresh project is the default
+`http://localhost:3000`. Google completes the round trip, the browser lands on
+a dev server that may not even be running, and nothing in any log says the
+redirect was swapped.
+
+This is why the app code looks innocent. `server/auth/index.ts` was sending
+the right URL; the project was throwing it away.
+
+Check, in this order:
+
+1. **Site URL** is `https://app.vennflat.site`, not the default. This alone
+   fixes the visible symptom, because it is the value being substituted in.
+2. The exact callback is on the **redirect allow-list**, character for
+   character — scheme, host, no trailing slash. `…/auth/callback/` is a
+   different string and fails the same silent way.
+3. **`NEXT_PUBLIC_SITE_URL`** is set for that Vercel environment, then
+   REDEPLOY. `lib/env.ts` exports it and `server/auth/index.ts` prefers it
+   over the request host, so the app sends one predictable origin instead of
+   whichever hostname the visitor arrived on.
 
 Supabase → Authentication → URL Configuration:
 
