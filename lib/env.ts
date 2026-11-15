@@ -42,6 +42,11 @@ export const SUPABASE_URL = required(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
 );
 
+export const SITE_URL = required(
+  "NEXT_PUBLIC_SITE_URL",
+  process.env.NEXT_PUBLIC_SITE_URL,
+);
+
 export const SUPABASE_ANON_KEY = required(
   "NEXT_PUBLIC_SUPABASE_ANON_KEY",
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
