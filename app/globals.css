@@ -307,11 +307,18 @@
    touching the top and bottom of the window. The screen height therefore
    shrinks to fit the viewport, and every screen inside reads --screen-h so
    it sizes to the frame instead of to the window.
+
+   The margin was 8.5rem, which left the phone floating in the middle of a
+   large window and reading as short and wide. It is now 4rem (the wrapper's
+   py-6 plus the 11px bezel), and the cap is 880 rather than 844, so on a tall
+   window the device gets taller instead of stopping early. Keep the two in
+   step: this number must stay >= the wrapper padding plus bezel, or the frame
+   overruns the window again on short laptops.
 --------------------------------------------------------------------------- */
 @media (min-width: 861px) {
   .phone-screen {
     /* Shrink to fit short laptops instead of overrunning the window. */
-    --screen-h: min(844px, calc(100dvh - 8.5rem));
+    --screen-h: min(880px, calc(100dvh - 4rem));
     height: var(--screen-h);
     min-height: 0;
     width: 390px;

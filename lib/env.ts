@@ -42,10 +42,17 @@ export const SUPABASE_URL = required(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
 );
 
+/**
+ * Where this deployment lives, e.g. `https://app.vennflat.site`.
+ *
+ * Trailing slashes are stripped because `${SITE_URL}/auth/callback` would
+ * otherwise become a double slash — a different string to Supabase's redirect
+ * allow-list, and so rejected by it, silently.
+ */
 export const SITE_URL = required(
   "NEXT_PUBLIC_SITE_URL",
   process.env.NEXT_PUBLIC_SITE_URL,
-);
+).replace(/\/+$/, "");
 
 export const SUPABASE_ANON_KEY = required(
   "NEXT_PUBLIC_SUPABASE_ANON_KEY",
@@ -131,3 +138,47 @@ function assertAnonKey(url: string, key: string): void {
 }
 
 assertAnonKey(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/**
+ * Is NEXT_PUBLIC_SITE_URL pointing at localhost on a hosted deployment?
+ *
+ * WHY THIS EXISTS. `.env.example` ships `NEXT_PUBLIC_SITE_URL=http://localhost:3000`,
+ * which is correct for a laptop and catastrophic on Vercel — and copying the
+ * example file into a host's environment settings is the single most common
+ * way to populate them. `server/auth/index.ts` PREFERS this value over the
+ * request's own host (deliberately: a preview deployment's hostname changes
+ * every commit and can never be allow-listed), so a wrong value here is not
+ * ignored. It is obeyed.
+ *
+ * The failure is silent in both directions. The app sends
+ * `http://localhost:3000/auth/callback`, Supabase ACCEPTS it — localhost is on
+ * the allow-list for local development, as it should be — Google completes the
+ * round trip, and the user is handed to a dev server that is not running. No
+ * error is raised anywhere, because from each system's point of view nothing
+ * went wrong.
+ *
+ * The pairing is what makes this decidable. A local site URL is right when the
+ * database is also local, and wrong when it is not. That exact pairing is why
+ * this cannot simply test NODE_ENV: `next build` runs with NODE_ENV=production
+ * in CI too, where a localhost site URL alongside a localhost Supabase URL is
+ * the correct configuration.
+ */
+function assertSiteUrl(siteUrl: string, supabaseUrl: string): void {
+  const local = (u: string) =>
+    /^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])(:|\/|$)/.test(u);
+
+  if (local(siteUrl) && !local(supabaseUrl)) {
+    throw new Error(
+      `NEXT_PUBLIC_SITE_URL is "${siteUrl}", but NEXT_PUBLIC_SUPABASE_URL ` +
+        `points at the hosted project ${supabaseUrl}. OAuth redirects are ` +
+        `built from NEXT_PUBLIC_SITE_URL, so this deployment would send ` +
+        `people to a dev server after signing in with Google — which is the ` +
+        `exact symptom of "Google sends me to localhost". Set it to this ` +
+        `deployment's own URL (production: https://app.vennflat.site; ` +
+        `preview: the stable branch alias), then REDEPLOY — NEXT_PUBLIC_ ` +
+        `values are baked in at build time.`,
+    );
+  }
+}
+
+assertSiteUrl(SITE_URL, SUPABASE_URL);
