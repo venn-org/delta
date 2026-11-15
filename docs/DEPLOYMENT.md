@@ -147,12 +147,16 @@ Migrations are **never** applied by a Vercel build. They go from a developer
 machine or CI:
 
 ```bash
-npx supabase db reset                      # prove it replays from empty
-npx supabase test db                       # RLS suite must pass
-npx supabase db push --remote --dry-run    # read the list
-npx supabase db push --remote
-npx supabase db diff --remote --schema public   # expect "No schema changes found"
+npm run db:check                 # replay from empty, then the RLS suite
+npm run db:push:staging          # staging first, always
+npm run db:diff:staging          # expect "No schema changes found"
+npm run db:push:prod             # BEFORE merging to main — see docs/WORKFLOW.md
+npm run db:diff:prod
 ```
+
+The scripts name the project ref explicitly. A bare `--remote` means "whatever
+I last linked to", which is one `supabase link` away from pushing a staging
+experiment into production.
 
 Three CLI details that cost time if you forget them:
 
