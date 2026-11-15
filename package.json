@@ -9,7 +9,12 @@
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
     "db:reset": "supabase db reset",
-    "db:test": "supabase test db"
+    "db:test": "supabase test db",
+    "db:check": "supabase db reset && supabase test db",
+    "db:push:staging": "supabase db push --remote=STAGING_REF_GOES_HERE",
+    "db:push:prod": "supabase db push --remote=evpnmmkligiqrlmcyxdn",
+    "db:diff:staging": "supabase db diff --remote=STAGING_REF_GOES_HERE --schema public",
+    "db:diff:prod": "supabase db diff --remote=evpnmmkligiqrlmcyxdn --schema public"
   },
   "engines": {
     "node": ">=22 <27"

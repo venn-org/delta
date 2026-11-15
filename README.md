@@ -77,9 +77,11 @@ Parentheses in `app/` are route groups and add no path segment, so
 | `/unlock` | Paywall |
 | `/kit` | Component gallery. 404s in a production build. |
 
-## Deploying
+## Branches and deploying
 
-See `docs/DEPLOYMENT.md`.
+`main` is production, `development` is staging, anything else is a preview.
+See **`docs/WORKFLOW.md`** for the cycle, and `docs/DEPLOYMENT.md` for the
+environment variables and the Supabase setup.
 
 ## Two rules that are not style preferences
 
