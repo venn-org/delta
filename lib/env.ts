@@ -126,29 +126,3 @@ function assertAnonKey(url: string, key: string): void {
 }
 
 assertAnonKey(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-/**
- * Where this deployment lives, e.g. `https://app.vennflat.site`. Optional.
- *
- * WHY IT MATTERS FOR OAUTH. `startGoogleOAuth` used to build its `redirectTo`
- * purely from the incoming request's Host header. That is correct in spirit
- * and wrong in practice, because Supabase does not accept an arbitrary
- * `redirectTo`: a value that is not on the project's redirect allow-list is
- * DISCARDED and replaced with the project's **Site URL**. The round trip
- * succeeds, Google is happy, and the browser lands on whatever Site URL says
- * — which on a fresh Supabase project is the default `http://localhost:3000`.
- *
- * So a wrong-looking redirect is almost never a bug in the URL we sent. It is
- * that URL failing the allow-list and being silently swapped for another one.
- *
- * Setting this pins the redirect to one host per environment, which is the
- * host you can actually allow-list. Preview deployments get a new hostname per
- * commit, so the request-derived origin could never be allow-listed in
- * advance; point this at the stable branch alias instead.
- *
- * Trailing slashes are stripped so `${SITE_URL}/auth/callback` cannot become
- * a double slash — which is a different string to the allow-list, and so
- * fails it in the same silent way.
- */
-export const SITE_URL: string | undefined =
-  process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/+$/, "") || undefined;
