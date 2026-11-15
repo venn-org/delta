@@ -15,7 +15,7 @@ import type { ReactNode } from "react";
  */
 export function PhoneFrame({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-dvh-safe relative overflow-hidden bg-canvas min-[861px]:flex min-[861px]:items-center min-[861px]:justify-center min-[861px]:gap-16 min-[861px]:py-14">
+    <div className="min-h-dvh-safe relative overflow-hidden bg-canvas min-[861px]:flex min-[861px]:items-center min-[861px]:justify-center min-[861px]:gap-16 min-[861px]:py-6">
       {/* Desktop-only canvas blobs. */}
       <div
         aria-hidden="true"

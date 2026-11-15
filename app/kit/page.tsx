@@ -26,7 +26,7 @@ const unlocked: MatchListItem = {
   areaName: "Powai",
   displayName: "Ananya",
   age: 24,
-  occupation: "UX designer, Swiggy",
+  occupation: "UX designer",
   avatarUrl: null,
   reasons: [
     { key: "sleep", label: "Both night owls" },
