@@ -13,31 +13,37 @@ import type { AnswerValue, Question } from "@/lib/answers";
  *
  * Nothing here names a specific question — add a question to the database and
  * it gets the right input automatically (ADR-009).
+ *
+ * `initial` opens the control on an existing answer — the profile's edit
+ * screen passes the current one; the onboarding chat passes nothing.
  */
 export function AnswerInput({
   question,
   onAnswer,
   disabled,
+  initial,
 }: {
   question: Question;
   onAnswer: (value: AnswerValue) => void;
   disabled?: boolean;
+  initial?: AnswerValue | null;
 }) {
   switch (question.answerKind) {
     case "single_choice":
-      return <SingleChoice question={question} onAnswer={onAnswer} disabled={disabled} />;
+      return <SingleChoice question={question} onAnswer={onAnswer} disabled={disabled} initial={initial} />;
     case "multi_choice":
     case "area_multi":
-      return <MultiChoice question={question} onAnswer={onAnswer} disabled={disabled} />;
+      return <MultiChoice question={question} onAnswer={onAnswer} disabled={disabled} initial={initial} />;
     case "scale":
-      return <ScaleAnswer question={question} onAnswer={onAnswer} disabled={disabled} />;
+      return <ScaleAnswer question={question} onAnswer={onAnswer} disabled={disabled} initial={initial} />;
     case "range":
-      return <RangeAnswer question={question} onAnswer={onAnswer} disabled={disabled} />;
+      return <RangeAnswer question={question} onAnswer={onAnswer} disabled={disabled} initial={initial} />;
     case "free_text":
       return (
         <ChatComposer
           disabled={disabled}
           placeholder={question.placeholder ?? "Message"}
+          initialValue={initial && "text" in initial ? initial.text : ""}
           onSend={(text) => onAnswer({ text })}
         />
       );
@@ -48,12 +54,16 @@ function SingleChoice({
   question,
   onAnswer,
   disabled,
+  initial,
 }: {
   question: Question;
   onAnswer: (v: AnswerValue) => void;
   disabled?: boolean;
+  initial?: AnswerValue | null;
 }) {
-  const [picked, setPicked] = useState<string | null>(null);
+  const [picked, setPicked] = useState<string | null>(
+    initial && "choice" in initial ? initial.choice : null,
+  );
 
   return (
     <div className="pt-1 pb-1">
@@ -77,12 +87,20 @@ function MultiChoice({
   question,
   onAnswer,
   disabled,
+  initial,
 }: {
   question: Question;
   onAnswer: (v: AnswerValue) => void;
   disabled?: boolean;
+  initial?: AnswerValue | null;
 }) {
-  const [picked, setPicked] = useState<string[]>([]);
+  const [picked, setPicked] = useState<string[]>(
+    initial && "choices" in initial
+      ? initial.choices
+      : initial && "areas" in initial
+        ? initial.areas
+        : [],
+  );
   const isAreas = question.answerKind === "area_multi";
 
   return (
@@ -119,14 +137,18 @@ function ScaleAnswer({
   question,
   onAnswer,
   disabled,
+  initial,
 }: {
   question: Question;
   onAnswer: (v: AnswerValue) => void;
   disabled?: boolean;
+  initial?: AnswerValue | null;
 }) {
   const min = question.ordinalMin ?? 1;
   const max = question.ordinalMax ?? 5;
-  const [value, setValue] = useState(Math.round((min + max) / 2));
+  const [value, setValue] = useState(
+    initial && "value" in initial ? initial.value : Math.round((min + max) / 2),
+  );
 
   const labelFor = (n: number) =>
     question.options.find((o) => o.ordinal === n)?.label ?? String(n);
@@ -156,10 +178,12 @@ function RangeAnswer({
   question,
   onAnswer,
   disabled,
+  initial,
 }: {
   question: Question;
   onAnswer: (v: AnswerValue) => void;
   disabled?: boolean;
+  initial?: AnswerValue | null;
 }) {
   // End stops come from the question row, not constants here (migration 0012).
   const min = question.ordinalMin ?? 5000;
@@ -168,10 +192,14 @@ function RangeAnswer({
 
   // Opens on a sensible middle band rather than the full range, so the
   // answer reflects a choice instead of the default.
-  const [range, setRange] = useState({
-    min: Math.round((min + (max - min) * 0.25) / step) * step,
-    max: Math.round((min + (max - min) * 0.5) / step) * step,
-  });
+  const [range, setRange] = useState(
+    initial && "min" in initial
+      ? { min: initial.min, max: initial.max }
+      : {
+          min: Math.round((min + (max - min) * 0.25) / step) * step,
+          max: Math.round((min + (max - min) * 0.5) / step) * step,
+        },
+  );
 
   return (
     <div className="ml-auto flex w-[86%] max-w-[300px] flex-col gap-3 rounded-2xl border border-mist bg-white p-3.5">

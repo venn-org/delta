@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { BgBlobs } from "@/components/BgBlobs";
 import { Avatar } from "@/components/Avatar";
 import { getProfileSummary } from "@/server/profile";
@@ -10,8 +11,8 @@ import type { ReactNode } from "react";
  *
  * Two kinds of row live here and they are deliberately told apart:
  *
- *   - A row backed by an answer shows that answer and nothing else. "Looking
- *     in" and "Budget" are the `locality` and `budget` answers read back.
+ *   - A row backed by an answer shows that answer and opens it for editing.
+ *     "Looking in" and "Budget" are the `locality` and `budget` answers.
  *   - A row whose destination does not exist yet is inert and says "Soon".
  *     The design draws a chevron on every row, but a chevron that navigates
  *     nowhere is a worse answer than a row that admits it is not ready.
@@ -51,7 +52,11 @@ export default async function ProfilePage() {
         </h1>
 
         {/* --- Identity ------------------------------------------------- */}
-        <section className="venn-rise flex items-center gap-3.5 rounded-card bg-white p-4 shadow-card">
+        <Link
+          href="/profile/edit"
+          aria-label="Edit profile"
+          className="venn-rise flex items-center gap-3.5 rounded-card bg-white p-4 no-underline shadow-card transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-lift"
+        >
           <Avatar name={name} size="lg" />
           <div className="min-w-0 flex-1">
             <h2 className="flex items-center gap-1.5 truncate font-display text-[20px] leading-tight font-bold tracking-[-0.03em] text-ink">
@@ -60,16 +65,18 @@ export default async function ProfilePage() {
             </h2>
             <p className="truncate text-[14px] text-slate">{subtitle}</p>
           </div>
-        </section>
+          <span className="flex-none text-[14px] font-semibold text-blue">Edit</span>
+        </Link>
 
         {/* --- What we match you on ------------------------------------- */}
         <Group label="// What we match you on">
           <Row
             label="Looking in"
             value={lookingIn.length > 0 ? lookingIn.join(", ") : null}
+            href="/profile/answers/locality"
           />
-          <Row label="Budget" value={budget} />
-          <Row label="Your answers" soon />
+          <Row label="Budget" value={budget} href="/profile/answers/budget" />
+          <Row label="Your answers" href="/profile/answers" />
           <Row label="Get verified" value={isVerified ? "Verified" : null} soon={!isVerified} />
         </Group>
 
@@ -77,7 +84,8 @@ export default async function ProfilePage() {
         <Group label="// Account">
           <Row label="Notifications" soon />
           <Row label="Pause my profile" soon />
-          <Row label="Privacy & safety" soon />
+          <Row label="Privacy & safety" href="/privacy" />
+          <Row label="Terms & conditions" href="/terms" />
           <Row label="Help" soon />
         </Group>
 
@@ -130,23 +138,46 @@ function Group({ label, children }: { label: string; children: ReactNode }) {
  * Label on the left, value on the right.
  *
  * `soon` and `value` are not mutually exclusive: "Get verified" shows
- * "Verified" once they are, and is a stub only while they are not.
+ * "Verified" once they are, and is a stub only while they are not. A row
+ * with `href` navigates and draws a chevron; one without stays inert.
  */
 function Row({
   label,
   value,
   soon = false,
+  href,
 }: {
   label: string;
   value?: string | null;
   soon?: boolean;
+  href?: string;
 }) {
-  return (
-    <div className="flex min-h-[52px] items-center justify-between gap-3 border-t border-mist/60 py-3.5 first:border-t-0">
+  const classes =
+    "flex min-h-[52px] items-center justify-between gap-3 border-t border-mist/60 py-3.5 first:border-t-0";
+  const right = value ?? (soon ? <span className="text-slate/60">Soon</span> : href ? null : "—");
+
+  const content = (
+    <>
       <span className="flex-none text-[15px] text-ink">{label}</span>
-      <span className="min-w-0 truncate text-right text-[14px] text-slate">
-        {value ?? (soon ? <span className="text-slate/60">Soon</span> : "—")}
+      <span className="flex min-w-0 items-center gap-1.5 text-[14px] text-slate">
+        {right != null && <span className="truncate text-right">{right}</span>}
+        {href && <ChevronIcon />}
       </span>
-    </div>
+    </>
+  );
+
+  if (!href) return <div className={classes}>{content}</div>;
+  return (
+    <Link href={href} className={`${classes} no-underline active:opacity-85`}>
+      {content}
+    </Link>
+  );
+}
+
+function ChevronIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="flex-none">
+      <path d="M9 18l6-6-6-6" />
+    </svg>
   );
 }

@@ -588,6 +588,9 @@ isOneToOne: false
 "question_ordinal":
 { Args: { "p_key": string,"p_value": Json }; Returns: number
                            },
+"save_answer":
+{ Args: { "p_key": string,"p_value": Json }; Returns: number
+                           },
 "send_interest":
 { Args: { "p_note"?: string,"p_to": string }; Returns: string
                            },

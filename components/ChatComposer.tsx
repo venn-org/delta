@@ -26,13 +26,16 @@ export function ChatComposer({
   placeholder = "Message",
   disabled = false,
   maxLength = 2000,
+  initialValue = "",
 }: {
   onSend: (body: string) => void | Promise<void>;
   placeholder?: string;
   disabled?: boolean;
   maxLength?: number;
+  /** Prefills the field, e.g. with the current answer when editing it. */
+  initialValue?: string;
 }) {
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(initialValue);
   const [sending, setSending] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const keyboardInset = useKeyboardInset();

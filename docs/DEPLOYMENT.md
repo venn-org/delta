@@ -197,7 +197,7 @@ leaks.
 - **Age and occupation are never collected.** Onboarding asks eleven
   questions and none of them is "how old are you", so match cards and the
   profile screen both render thin.
-- `/unlock`, `/chats` and `/matches/[id]` are placeholders.
+- `/unlock` and `/chats` are placeholders.
 - Advisors report 47 warnings on `delta-prod` (0 errors): mostly
   `auth.uid()` unwrapped in RLS policies, which is a per-row re-evaluation
   cost, plus `anon` holding EXECUTE on RPCs that only make sense signed in.
