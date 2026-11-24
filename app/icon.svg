@@ -1,0 +1,35 @@
+<!--
+  The browser-tab icon. Picked up automatically by Next.js's file convention —
+  `app/icon.svg` needs no `icons` entry in the metadata export.
+
+  This is the VennMark (components/VennMark.tsx) redrawn for 16px, not a copy
+  of it. Three things had to change to survive at tab size:
+
+    - The circles are bigger (r 33, centres 32px apart) and run nearly to the
+      edge. The component's r27 at centres 26px apart leaves a margin that
+      reads as wasted space once the whole mark is 16px wide.
+    - The lens is at 0.42 opacity rather than 0.24. The subtle version is
+      correct at 36px in the chat header and simply disappears in a tab, which
+      would leave two blobs and lose the one idea the logo carries.
+    - Fill opacities are up (1.0 / 0.9), because the mark now sits on whatever
+      colour the browser's tab strip happens to be rather than on our canvas.
+
+  The background stays transparent on purpose: these two colours hold up on a
+  light and a dark tab strip, whereas the component's `inset` ink disc would
+  vanish into a dark one.
+
+  The lens path is the true intersection of the two circles, not an eyeballed
+  ellipse. Endpoints are where the circles actually cross — x = 50,
+  y = 50 ± sqrt(33² − 16²) ≈ 50 ± 28.9 — so the curvature matches the circles
+  on both sides. An ellipse of roughly the right size looks fine large and
+  misaligns visibly at 16px, where a one-pixel mismatch is 6% of the width.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="34" cy="50" r="33" fill="#335CFF" />
+  <circle cx="66" cy="50" r="33" fill="#8A5BFF" fill-opacity="0.9" />
+  <path
+    d="M50 21.1A33 33 0 0 1 50 78.9A33 33 0 0 1 50 21.1Z"
+    fill="#FFFFFF"
+    fill-opacity="0.42"
+  />
+</svg>
