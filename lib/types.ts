@@ -32,3 +32,37 @@ export interface MatchListItem {
   frictions: ReasonTag[];
   isVerified: boolean;
 }
+
+/** One question, both people's answers, already turned into display labels. */
+export interface AnswerComparison {
+  key: string;
+  label: string;
+  mine: string | null;
+  theirs: string | null;
+  /** The scorer's verdict (similarity >= 0.85), not a string comparison. */
+  same: boolean;
+}
+
+/**
+ * The side-by-side from `get_match_detail`. Only ever built for a candidate
+ * the viewer may see in full: the RPC raises before returning anything for a
+ * locked one, so there is no redacted variant of this type.
+ */
+export interface MatchDetail {
+  candidateId: string;
+  score: number;
+  rank: number;
+  displayName: string | null;
+  age: number | null;
+  occupation: string | null;
+  employer: string | null;
+  areaName: string | null;
+  avatarUrl: string | null;
+  isVerified: boolean;
+  idealSunday: string | null;
+  petPeeve: string | null;
+  frictions: ReasonTag[];
+  answers: AnswerComparison[];
+  /** An interest from the viewer to this person is pending or accepted. */
+  hiSent: boolean;
+}

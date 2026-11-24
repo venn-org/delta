@@ -15,7 +15,7 @@ import type { MatchListItem, ReasonTag } from "@/lib/types";
  */
 
 /** `reasons` and `frictions` arrive as jsonb, so they are `unknown` to us. */
-function toTags(value: unknown): ReasonTag[] {
+export function toTags(value: unknown): ReasonTag[] {
   if (!Array.isArray(value)) return [];
   return value.flatMap((entry) => {
     if (!entry || typeof entry !== "object") return [];
