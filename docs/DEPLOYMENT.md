@@ -23,9 +23,6 @@ from Supabase → Project Settings → API.
 | `NEXT_PUBLIC_SITE_URL` | preview | the **stable branch alias**, e.g. `https://delta-git-development.vercel.app` |
 | `CRON_SECRET` | production | a long random string you generate |
 
-**`ENABLE_DEV_LOGIN` must not exist in any Vercel environment.** It unlocks a
-URL that signs anybody in as a real user without a password.
-
 ### `NEXT_PUBLIC_` variables need a REDEPLOY
 
 They are inlined into the bundle at build time, not read when a request comes
@@ -70,18 +67,13 @@ pair from its own dashboard. Do not add them to Vercel.
 
 ### The thing to decide before the first deploy
 
-A Vercel build is a production build, so **`/dev/login` 404s on every
-deployment**, preview included. That is correct and intended — but it means
-the only way into the deployed app is a real sign-in, and right now that is
-email codes capped at **2 per hour** on Supabase's shared SMTP.
-
-Three ways out, in the order I'd pick them:
+The only way into a deployed app is a real sign-in, and right now email codes
+are capped at **2 per hour** on Supabase's shared SMTP. Two ways out, in the
+order I'd pick them:
 
 1. **Custom SMTP** (Resend, a verified domain). Lifts the cap, fixes
    deliverability, and is needed for launch regardless. An hour of work.
 2. **Google OAuth.** No email at all. Needs a Google Cloud client; see §3.
-3. Loosening the `/dev/login` gate. **Don't.** It puts a full authentication
-   bypass on a public host.
 
 ## 2. Supabase auth settings
 

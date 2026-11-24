@@ -24,18 +24,15 @@ npm run dev
 
 Then open <http://localhost:3000>.
 
-There is no email or Google sign-in locally unless you configure it. Instead,
-with `ENABLE_DEV_LOGIN=true` in `.env.local`:
-
-| URL | What it does |
-|---|---|
-| `/dev/login` | Signs in as a dummy user with onboarding finished |
-| `/dev/login?state=onboarding` | Signs in mid-onboarding |
-| `/dev/login?out=1` | Signs out |
-
-`/dev/login` is a complete authentication bypass. It 404s unless
-`ENABLE_DEV_LOGIN=true` **and** the build is not a production build. Never set
-it on a deployment.
+Signing in locally uses Google against the local Supabase stack. Put the
+Google OAuth client's ID and secret in `.env.local` as
+`SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID` / `_SECRET`, add
+`http://127.0.0.1:54421/auth/v1/callback` to that client's authorised redirect
+URIs, and restart the stack (`npx supabase stop && npx supabase start`) — it
+reads them only at startup. Open the app at `http://localhost:3000`, the same
+origin as `NEXT_PUBLIC_SITE_URL`, or the sign-in cookie and the callback land on
+different hosts. Email codes also work locally; read them in the mail catcher
+that `npx supabase status` lists.
 
 ## Scripts
 
